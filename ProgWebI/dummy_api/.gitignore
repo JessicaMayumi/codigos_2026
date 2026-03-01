@@ -1,1 +1,9 @@
+employees.db
+
+# Python
+venv/
+__pycache__/
+
+# Node
 node_modules/
+package-lock.json

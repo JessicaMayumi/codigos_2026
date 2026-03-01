@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Funcionários - REST API</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="../modules/material-motion.css" />
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+  <div class="container">
+    <a class="navbar-brand" href="#">Funcionários API</a>
+    <a href="vue.html" class="btn btn-outline-light btn-sm ms-auto">↔ Versão Vue</a>
+  </div>
+</nav>
+
+<main class="container py-4">
+  <div class="card shadow-sm">
+    <div class="card-body p-0">
+      <ul class="nav nav-tabs" id="employeesTab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <a class="nav-link" id="inserir-tab-btn" data-bs-toggle="tab" data-bs-target="#tabInserir" href="#tabInserir" role="tab">Inserir</a>
+        </li>
+        <li class="nav-item" role="presentation">
+          <a class="nav-link active" id="listar-tab-btn" data-bs-toggle="tab" data-bs-target="#tabListar" href="#tabListar" role="tab" aria-current="page">Listar</a>
+        </li>
+        <li class="nav-item" role="presentation">
+          <a class="nav-link" id="alterar-tab-btn" data-bs-toggle="tab" data-bs-target="#tabAlterar" href="#tabAlterar" role="tab">Alterar</a>
+        </li>
+        <li class="nav-item" role="presentation">
+          <a class="nav-link" id="excluir-tab-btn" data-bs-toggle="tab" data-bs-target="#tabExcluir" href="#tabExcluir" role="tab">Excluir</a>
+        </li>
+        <li class="nav-item" role="presentation">
+          <a class="nav-link" id="sobre-tab-btn" data-bs-toggle="tab" data-bs-target="#tabSobre" href="#tabSobre" role="tab">Sobre</a>
+        </li>
+      </ul>
+
+      <div class="tab-content p-4" id="employeesTabContent">
+        <!-- Tab Inserir -->
+        <div class="tab-pane fade" id="tabInserir" role="tabpanel">
+          <h5 class="mb-3">Inserir Funcionário</h5>
+          <form id="formInserir">
+            <div class="mb-3">
+              <label for="nome" class="form-label">Nome</label>
+              <input id="nome" type="text" class="form-control" placeholder="Digite o nome" required />
+            </div>
+            <div class="mb-3">
+              <label for="salario" class="form-label">Salário</label>
+              <input id="salario" type="number" class="form-control" placeholder="Digite o salário" required />
+            </div>
+            <div class="mb-3">
+              <label for="idade" class="form-label">Idade</label>
+              <input id="idade" type="number" class="form-control" placeholder="Digite a idade" />
+            </div>
+            <button type="submit" class="btn btn-primary">Salvar</button>
+          </form>
+        </div>
+
+        <!-- Tab Listar -->
+        <div class="tab-pane fade show active" id="tabListar" role="tabpanel">
+          <h5 class="mb-3">Listar Funcionários</h5>
+          <div class="table-responsive">
+            <table class="table table-striped table-hover">
+              <thead class="table-primary">
+                <tr>
+                  <th>ID</th>
+                  <th>Nome</th>
+                  <th>Salário</th>
+                  <th>Idade</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody id="employeeTableBody"></tbody>
+            </table>
+          </div>
+          <div class="d-flex align-items-center gap-2 mt-3">
+            <button type="button" class="btn btn-outline-primary btn-sm" id="btnAnterior">Anterior</button>
+            <span id="infoPagina" class="text-muted">Página 1</span>
+            <button type="button" class="btn btn-outline-primary btn-sm" id="btnProximo">Próxima</button>
+          </div>
+        </div>
+
+        <!-- Tab Alterar -->
+        <div class="tab-pane fade" id="tabAlterar" role="tabpanel">
+          <h5 class="mb-3">Alterar Funcionário</h5>
+          <div class="mb-3">
+            <label for="idAlterar" class="form-label">ID</label>
+            <div class="input-group">
+              <input id="idAlterar" type="number" class="form-control" placeholder="Digite o ID" />
+              <button type="button" class="btn btn-outline-primary" id="btnBuscar">Buscar</button>
+            </div>
+          </div>
+          <form id="formAlterar">
+            <div class="mb-3">
+              <label for="nomeAlterar" class="form-label">Nome</label>
+              <input id="nomeAlterar" type="text" class="form-control" placeholder="Novo nome" />
+            </div>
+            <div class="mb-3">
+              <label for="salarioAlterar" class="form-label">Salário</label>
+              <input id="salarioAlterar" type="number" class="form-control" placeholder="Novo salário" />
+            </div>
+            <div class="mb-3">
+              <label for="idadeAlterar" class="form-label">Idade</label>
+              <input id="idadeAlterar" type="number" class="form-control" placeholder="Nova idade" />
+            </div>
+            <button type="submit" class="btn btn-primary">Atualizar</button>
+          </form>
+        </div>
+
+        <!-- Tab Excluir -->
+        <div class="tab-pane fade" id="tabExcluir" role="tabpanel">
+          <h5 class="mb-3">Excluir Funcionário</h5>
+          <div class="mb-3">
+            <label for="codigoExcluir" class="form-label">Código (ID)</label>
+            <input id="codigoExcluir" type="number" class="form-control" placeholder="Digite o ID" />
+          </div>
+          <button type="button" class="btn btn-danger" id="btnRemover">Remover</button>
+        </div>
+
+        <!-- Tab Sobre -->
+        <div class="tab-pane fade" id="tabSobre" role="tabpanel">
+          <h5 class="mb-3">Sobre</h5>
+          <p>Este sistema foi desenvolvido para demonstrar um CRUD completo utilizando:</p>
+          <ul>
+            <li>JavaScript Nativo (Vanilla JS)</li>
+            <li>Arquitetura MVC modular</li>
+            <li>LocalStorage como persistência local</li>
+            <li>Integração com API REST</li>
+            <li>Validação com Zod</li>
+          </ul>
+          <p>A aplicação realiza operações de inserção, listagem, atualização e exclusão de funcionários.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script type="module" src="../modules/employee/view.js"></script>
+</body>
+</html>
