@@ -15,7 +15,6 @@ router = APIRouter(tags=["employees"])
 
 
 def _to_employee_data(emp: dict) -> EmployeeDataResponse:
-    """Converte registro interno para formato de resposta."""
     return EmployeeDataResponse(
         id=emp["id"],
         employee_name=emp.get("name", ""),
@@ -26,7 +25,6 @@ def _to_employee_data(emp: dict) -> EmployeeDataResponse:
 
 
 def _to_create_response(emp: dict) -> EmployeeCreateDataResponse:
-    """Formato de resposta do create/update."""
     return EmployeeCreateDataResponse(
         id=emp["id"],
         name=emp.get("name", ""),

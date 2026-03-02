@@ -6,12 +6,12 @@ import {
   getEmployeeById,
   clearDeletedCache,
 } from "./controller.js";
-import { showNotification } from "../notifications.js";
-import {CONFIG} from "../../configs/settings.js";
+import { CONFIG } from "../../configs/settings.js";
 
 const { createApp } = window.Vue;
 
 const pageSize = CONFIG.PAGE_SIZE;
+const MOBILE_BREAKPOINT = 768;
 
 const app = createApp({
   data() {
@@ -22,6 +22,9 @@ const app = createApp({
       formInserir: { nome: "", salario: "", idade: "" },
       formAlterar: { id: "", nome: "", salario: "", idade: "" },
       codigoExcluir: "",
+      notifications: [],
+      notificationId: 0,
+      isMobile: false,
     };
   },
   computed: {
@@ -45,34 +48,53 @@ const app = createApp({
     },
   },
   methods: {
+    notify(message, type = "info") {
+      const id = ++this.notificationId;
+      this.notifications.push({ id, message, type });
+      setTimeout(() => {
+        const idx = this.notifications.findIndex((n) => n.id === id);
+        if (idx >= 0) this.notifications.splice(idx, 1);
+      }, 5000);
+    },
+    checkResponsive() {
+      this.isMobile = window.innerWidth < MOBILE_BREAKPOINT;
+    },
     async refreshEmployees() {
       try {
         const res = await listEmployees();
         this.funcionarios = res.data || [];
       } catch (err) {
-        showNotification(err?.message || "Erro ao carregar funcionários.", "danger");
+        this.notify(err?.message || "Erro ao carregar funcionários.", "danger");
       }
     },
     async limparCache() {
       clearDeletedCache();
       await this.refreshEmployees();
-      showNotification("Cache de exclusões limpo.", "success");
+      this.notify("Cache de exclusões limpo.", "success");
     },
     async inserir() {
       const nome = String(this.formInserir.nome ?? "").trim();
       const salario = String(this.formInserir.salario ?? "").trim();
       if (!nome) {
-        showNotification("Nome é obrigatório.", "warning");
+        this.notify("Nome é obrigatório.", "warning");
         return;
       }
       if (salario === "") {
-        showNotification("Salário é obrigatório.", "warning");
+        this.notify("Salário é obrigatório.", "warning");
         return;
       }
       const salNum = parseFloat(salario);
       if (Number.isNaN(salNum) || salNum < 0) {
-        showNotification("Salário deve ser um número válido e não negativo.", "warning");
+        this.notify("Salário deve ser um número válido e não negativo.", "warning");
         return;
+      }
+      const idadeVal = String(this.formInserir.idade ?? "").trim();
+      if (idadeVal !== "") {
+        const idadeNum = parseInt(idadeVal, 10);
+        if (Number.isNaN(idadeNum) || idadeNum <= 16 || idadeNum >= 120) {
+          this.notify("Idade deve ser maior que 16 e menor que 120.", "warning");
+          return;
+        }
       }
       try {
         await createEmployee({
@@ -83,20 +105,20 @@ const app = createApp({
         this.formInserir = { nome: "", salario: "", idade: "" };
         this.paginaAtual = 1;
         await this.refreshEmployees();
-        showNotification("Funcionário inserido com sucesso.", "success");
+        this.notify("Funcionário inserido com sucesso.", "success");
       } catch (err) {
-        showNotification(err?.message || "Erro ao inserir.", "danger");
+        this.notify(err?.message || "Erro ao inserir.", "danger");
       }
     },
     async buscarPorId() {
       const id = (this.$refs.idAlterarRef?.value ?? this.formAlterar.id ?? "").toString().trim();
       if (!id) {
-        showNotification("Digite o ID para buscar.", "warning");
+        this.notify("Digite o ID para buscar.", "warning");
         return;
       }
       const idNum = parseInt(id, 10);
       if (Number.isNaN(idNum) || idNum < 0) {
-        showNotification("ID deve ser um número válido.", "warning");
+        this.notify("ID deve ser um número válido.", "warning");
         return;
       }
       try {
@@ -110,10 +132,10 @@ const app = createApp({
           this.$nextTick(() => {
             if (this.$refs.idAlterarRef) this.$refs.idAlterarRef.value = String(emp.id ?? id);
           });
-          showNotification("Funcionário encontrado.", "success");
+          this.notify("Funcionário encontrado.", "success");
         }
       } catch (err) {
-        showNotification(err?.message || "ID não encontrado ou inválido.", "danger");
+        this.notify(err?.message || "ID não encontrado ou inválido.", "danger");
         this.formAlterar.nome = "";
         this.formAlterar.salario = "";
         this.formAlterar.idade = "";
@@ -123,28 +145,36 @@ const app = createApp({
       const idRaw = this.$refs.idAlterarRef?.value ?? this.formAlterar.id;
       const idStr = (idRaw === null || idRaw === undefined ? "" : String(idRaw)).trim();
       if (!idStr) {
-        showNotification("Digite o ID do funcionário para alterar.", "warning");
+        this.notify("Digite o ID do funcionário para alterar.", "warning");
         return;
       }
       const idNum = parseInt(idStr, 10);
       if (Number.isNaN(idNum) || idNum < 0) {
-        showNotification("ID deve ser um número válido.", "warning");
+        this.notify("ID deve ser um número válido.", "warning");
         return;
       }
       const nome = String(this.formAlterar.nome ?? "").trim();
       const salario = String(this.formAlterar.salario ?? "").trim();
       if (!nome) {
-        showNotification("Nome é obrigatório para alterar.", "warning");
+        this.notify("Nome é obrigatório para alterar.", "warning");
         return;
       }
       if (salario === "") {
-        showNotification("Salário é obrigatório para alterar.", "warning");
+        this.notify("Salário é obrigatório para alterar.", "warning");
         return;
       }
       const salNum = parseFloat(salario);
       if (Number.isNaN(salNum) || salNum < 0) {
-        showNotification("Salário deve ser um número válido e não negativo.", "warning");
+        this.notify("Salário deve ser um número válido e não negativo.", "warning");
         return;
+      }
+      const idadeVal = String(this.formAlterar.idade ?? "").trim();
+      if (idadeVal !== "") {
+        const idadeNum = parseInt(idadeVal, 10);
+        if (Number.isNaN(idadeNum) || idadeNum <= 16 || idadeNum >= 120) {
+          this.notify("Idade deve ser maior que 16 e menor que 120.", "warning");
+          return;
+        }
       }
       try {
         await updateEmployee(idNum, {
@@ -154,47 +184,52 @@ const app = createApp({
         });
         this.formAlterar = { id: "", nome: "", salario: "", idade: "" };
         await this.refreshEmployees();
-        showNotification("Funcionário atualizado com sucesso.", "success");
+        this.notify("Funcionário atualizado com sucesso.", "success");
       } catch (err) {
-        showNotification(err?.message || "Erro ao atualizar.", "danger");
+        this.notify(err?.message || "Erro ao atualizar.", "danger");
       }
     },
     async removerPorCodigo() {
       const id = this.codigoExcluir?.toString()?.trim();
       if (!id) {
-        showNotification("Digite o ID para excluir.", "warning");
+        this.notify("Digite o ID para excluir.", "warning");
         return;
       }
       const idNum = parseInt(id, 10);
       if (Number.isNaN(idNum) || idNum < 0) {
-        showNotification("ID deve ser um número válido.", "warning");
+        this.notify("ID deve ser um número válido.", "warning");
         return;
       }
       try {
         await deleteEmployee(id);
         this.codigoExcluir = "";
         await this.refreshEmployees();
-        showNotification("Funcionário excluído com sucesso.", "success");
+        this.notify("Funcionário excluído com sucesso.", "success");
       } catch (err) {
-        showNotification(err?.message || "Erro ao excluir.", "danger");
+        this.notify(err?.message || "Erro ao excluir.", "danger");
       }
     },
     async excluirPorId(id) {
       if (id === undefined || id === null || id === "") {
-        showNotification("ID inválido para exclusão.", "warning");
+        this.notify("ID inválido para exclusão.", "warning");
         return;
       }
       try {
         await deleteEmployee(id);
         await this.refreshEmployees();
-        showNotification("Funcionário excluído com sucesso.", "success");
+        this.notify("Funcionário excluído com sucesso.", "success");
       } catch (err) {
-        showNotification(err?.message || "Erro ao excluir.", "danger");
+        this.notify(err?.message || "Erro ao excluir.", "danger");
       }
     },
   },
   mounted() {
     this.refreshEmployees();
+    this.checkResponsive();
+    window.addEventListener("resize", this.checkResponsive);
+  },
+  beforeUnmount() {
+    window.removeEventListener("resize", this.checkResponsive);
   },
 });
 

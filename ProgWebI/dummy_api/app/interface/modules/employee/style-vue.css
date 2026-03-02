@@ -1,0 +1,122 @@
+/* --- Notificações Vue (renderizadas pelo componente) --- */
+.vue-notification-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: min(90vw, 360px);
+  pointer-events: none;
+}
+
+.vue-notification-container .vue-toast {
+  padding: 0.75rem 1rem;
+  border-radius: 0.25rem;
+  color: #fff;
+  font-size: 0.9rem;
+  pointer-events: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.vue-toast.vue-toast-success { background-color: #198754; }
+.vue-toast.vue-toast-danger { background-color: #dc3545; }
+.vue-toast.vue-toast-warning { background-color: #ffc107; color: #212529; }
+.vue-toast.vue-toast-info { background-color: #0dcaf0; color: #212529; }
+
+/* Vue TransitionGroup para notificações */
+.vue-toast-enter-active,
+.vue-toast-leave-active {
+  transition: all var(--md-duration-medium) var(--md-easing-emphasized-decelerate);
+}
+
+.vue-toast-enter-from,
+.vue-toast-leave-to {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+.vue-toast-enter-to,
+.vue-toast-leave-from {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.vue-toast-move {
+  transition: transform var(--md-duration-medium) var(--md-easing-emphasized-decelerate);
+}
+
+/* --- Responsividade --- */
+.vue-responsive-mobile .table-responsive {
+  overflow-x: visible;
+}
+
+.vue-responsive-mobile .table,
+.vue-responsive-mobile .table thead,
+.vue-responsive-mobile .table tbody,
+.vue-responsive-mobile .table th,
+.vue-responsive-mobile .table td,
+.vue-responsive-mobile .table tr {
+  display: block;
+}
+
+.vue-responsive-mobile .table thead tr {
+  position: absolute;
+  top: -9999px;
+  left: -9999px;
+}
+
+.vue-responsive-mobile .table tbody tr {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background: #fff;
+  border-radius: 0.25rem;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.08);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem 1rem;
+}
+
+.vue-responsive-mobile .table tbody tr td {
+  border: none;
+  padding: 0.25rem 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.vue-responsive-mobile .table tbody tr td::before {
+  content: attr(data-label);
+  font-weight: 500;
+  color: var(--app-primary);
+  flex-shrink: 0;
+}
+
+.vue-responsive-mobile .table tbody tr td[data-label="Ações"] {
+  grid-column: 1 / -1;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.vue-responsive-mobile .table tbody tr td[data-label="Ações"]::before {
+  display: none;
+}
+
+/* Navbar responsiva */
+.vue-responsive-mobile .navbar .container {
+  flex-wrap: wrap;
+}
+
+.vue-responsive-mobile .nav-tabs {
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  -webkit-overflow-scrolling: touch;
+}
+
+.vue-responsive-mobile .nav-link {
+  white-space: nowrap;
+  font-size: 0.875rem;
+  padding: 0.4rem 0.75rem;
+}

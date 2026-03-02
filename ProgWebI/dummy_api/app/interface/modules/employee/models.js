@@ -42,7 +42,7 @@ export const GetEmployeeResponse = z.object({
 export const CreateEmployeeRequest = z.object({
     name: EmployeeName.refine((s) => s.length >= 1, "Nome é obrigatório"),
     salary: EmployeeSalary,
-    age: EmployeeAge
+    age: EmployeeAge.refine(v => v === undefined || (typeof v === "number" && v > 16 && v < 120), "Idade deve ser maior que 16 e menor que 120")
 })
 
 export const CreateEmployeeResponse = z.object({
@@ -59,7 +59,7 @@ export const CreateEmployeeResponse = z.object({
 export const UpdateEmployeeRequest = z.object({
     name: EmployeeName.refine((s) => s.length >= 1, "Nome é obrigatório"),
     salary: EmployeeSalary,
-    age: EmployeeAge
+    age: EmployeeAge.refine(v => v === undefined || (typeof v === "number" && v > 16 && v < 120), "Idade deve ser maior que 16 e menor que 120")
 })
 
 export const UpdateEmployeeResponse = z.object({

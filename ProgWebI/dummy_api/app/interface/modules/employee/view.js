@@ -108,6 +108,14 @@ if (formInserir) {
       showNotification("Salário deve ser um número válido e não negativo.", "warning");
       return;
     }
+    const idadeVal = String(idade?.value ?? "").trim();
+    if (idadeVal !== "") {
+      const idadeNum = parseInt(idadeVal, 10);
+      if (Number.isNaN(idadeNum) || idadeNum <= 16 || idadeNum >= 120) {
+        showNotification("Idade deve ser maior que 16 e menor que 120.", "warning");
+        return;
+      }
+    }
     try {
       await createEmployee({
         name: nomeVal,
@@ -183,6 +191,14 @@ if (formAlterar) {
     if (Number.isNaN(salNum) || salNum < 0) {
       showNotification("Salário deve ser um número válido e não negativo.", "warning");
       return;
+    }
+    const idadeValAlt = String(idadeAlterar?.value ?? "").trim();
+    if (idadeValAlt !== "") {
+      const idadeNum = parseInt(idadeValAlt, 10);
+      if (Number.isNaN(idadeNum) || idadeNum <= 16 || idadeNum >= 120) {
+        showNotification("Idade deve ser maior que 16 e menor que 120.", "warning");
+        return;
+      }
     }
     try {
       await updateEmployee(idNum, {

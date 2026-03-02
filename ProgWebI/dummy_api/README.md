@@ -28,10 +28,12 @@ Interface web para gerenciamento de funcionários com operações de **Inserir**
 app/interface/
 ├── configs/settings.js      # URL da API e chave do LocalStorage
 ├── modules/
-│   ├── material-motion.css  # Estilos e animações
+│   ├── base.css             # Cores, fontes, tabelas e estilos padrão
 │   ├── http.js              # Cliente HTTP (fetch)
-│   ├── notifications.js    # Notificações
+│   ├── notifications.js     # Notificações (versão nativa)
 │   └── employee/
+│       ├── style.css        # Estilos específicos da aplicação nativa
+│       ├── style-vue.css    # Estilos específicos da aplicação Vue
 │       ├── apiRequests.js   # Chamadas à API REST
 │       ├── controller.js    # Lógica de negócio (merge API + LocalStorage)
 │       ├── localStorage.js  # Persistência local
