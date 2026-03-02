@@ -18,6 +18,7 @@ const app = createApp({
     return {
       tabAtivo: 1,
       funcionarios: [],
+      ordenarSobreId: "asc", 
       paginaAtual: 1,
       formInserir: { nome: "", salario: "", idade: "" },
       formAlterar: { id: "", nome: "", salario: "", idade: "" },
@@ -28,8 +29,18 @@ const app = createApp({
     };
   },
   computed: {
+    funcionariosOrdenadosPorId() {
+      const list = [...this.funcionarios];
+      const dir = this.ordenarSobreId === "desc" ? -1 : 1;
+      list.sort((a, b) => {
+        const idA = Number(a.id) || 0;
+        const idB = Number(b.id) || 0;
+        return (idA - idB) * dir;
+      });
+      return list;
+    },
     totalPaginas() {
-      return Math.max(1, Math.ceil(this.funcionarios.length / pageSize));
+      return Math.max(1, Math.ceil(this.funcionariosOrdenadosPorId.length / pageSize));
     },
     funcionariosPagina() {
       const totalPages = this.totalPaginas;
@@ -38,7 +49,7 @@ const app = createApp({
       if (page < 1) page = 1;
       const start = (page - 1) * pageSize;
       const end = start + pageSize;
-      return this.funcionarios.slice(start, end);
+      return this.funcionariosOrdenadosPorId.slice(start, end);
     },
   },
   watch: {
@@ -59,6 +70,10 @@ const app = createApp({
         const idx = this.notifications.findIndex((n) => n.id === id);
         if (idx >= 0) this.notifications.splice(idx, 1);
       }, 5000);
+    },
+    alternarOrdemId() {
+      this.ordenarSobreId = this.ordenarSobreId === "asc" ? "desc" : "asc";
+      this.paginaAtual = 1;
     },
     checkResponsive() {
       this.isMobile = window.innerWidth < MOBILE_BREAKPOINT;

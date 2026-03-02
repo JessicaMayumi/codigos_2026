@@ -52,7 +52,11 @@
 }
 
 .btn-unified .btn-icon-block.material-icons {
-  font-size: 20px;
+  font-size: 18px;
+}
+
+.btn-unified .btn-icon-block.icon-check {
+  font-size: 18px;
 }
 
 .btn-unified .btn-icon-block.icon-close {

@@ -14,6 +14,7 @@ import {CONFIG} from "../../configs/settings.js";
 let currentPage = 1;
 const pageSize = CONFIG.PAGE_SIZE;
 let cachedEmployees = [];
+let sortByIdOrder = "asc"; 
 
 // -------------------- Elementos DOM --------------------
 const tableBody = document.getElementById("employeeTableBody");
@@ -35,19 +36,33 @@ const btnRemover = document.getElementById("btnRemover");
 const btnRefreshList = document.getElementById("btnRefreshList");
 const btnClearCache = document.getElementById("btnClearCache");
 const msgListaVaziaCache = document.getElementById("msgListaVaziaCache");
+const btnSortId = document.getElementById("btnSortId");
+const sortIconId = document.getElementById("sortIconId");
+
+function getSortedEmployees() {
+  const list = [...cachedEmployees];
+  const dir = sortByIdOrder === "desc" ? -1 : 1;
+  list.sort((a, b) => {
+    const idA = Number(a.id) || 0;
+    const idB = Number(b.id) || 0;
+    return (idA - idB) * dir;
+  });
+  return list;
+}
 
 // -------------------- Render --------------------
 function renderTablePage() {
   if (!tableBody) return;
 
-  const total = cachedEmployees.length;
+  const sorted = getSortedEmployees();
+  const total = sorted.length;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   if (currentPage > totalPages) currentPage = totalPages;
   if (currentPage < 1) currentPage = 1;
 
   const start = (currentPage - 1) * pageSize;
   const end = start + pageSize;
-  const pageItems = cachedEmployees.slice(start, end);
+  const pageItems = sorted.slice(start, end);
 
   const formatarSalario = (v) => {
     const n = parseFloat(v);
@@ -75,6 +90,9 @@ function renderTablePage() {
 
   if (msgListaVaziaCache) {
     msgListaVaziaCache.classList.toggle("hidden", total > 0);
+  }
+  if (sortIconId) {
+    sortIconId.textContent = sortByIdOrder === "asc" ? "arrow_upward" : "arrow_downward";
   }
 }
 
@@ -263,6 +281,14 @@ if (tableBody) {
 
 if (btnRefreshList) {
   btnRefreshList.addEventListener("click", () => refreshEmployees());
+}
+
+if (btnSortId) {
+  btnSortId.addEventListener("click", () => {
+    sortByIdOrder = sortByIdOrder === "asc" ? "desc" : "asc";
+    currentPage = 1;
+    renderTablePage();
+  });
 }
 
 if (btnClearCache) {

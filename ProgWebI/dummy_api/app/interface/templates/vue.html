@@ -67,7 +67,7 @@
             <table class="table">
               <thead>
                 <tr>
-                  <th>ID</th>
+                  <th><button type="button" class="btn-sort-header" @click="alternarOrdemId" :aria-label="`Ordenar por ID ${ordenarSobreId === 'asc' ? 'decrescente' : 'crescente'}`">ID <span class="material-icons sort-icon">{{ ordenarSobreId === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</span></button></th>
                   <th>Nome</th>
                   <th>Salário</th>
                   <th>Idade</th>

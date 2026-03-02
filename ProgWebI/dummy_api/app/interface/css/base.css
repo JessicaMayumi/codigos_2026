@@ -121,6 +121,23 @@ body *, .navbar, .navbar-brand, .nav-link, .tab-content, .tab-pane {
   color: #fff;
 }
 
+.btn-sort-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.btn-sort-header .sort-icon {
+  font-size: 1.1rem;
+  opacity: 0.9;
+}
+
 /* Formulários base */
 .form-label {
   display: block;
