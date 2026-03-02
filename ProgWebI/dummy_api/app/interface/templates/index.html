@@ -4,66 +4,67 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Funcionários - REST API</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script type="importmap">
+    {
+      "imports": {
+        "@material/web/": "https://esm.run/@material/web/"
+      }
+    }
+  </script>
+  <script type="module">
+    import '@material/web/all.js';
+  </script>
   <link rel="stylesheet" href="../modules/material-motion.css" />
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<header>
+<nav class="navbar">
   <div class="container">
-    <a class="navbar-brand" href="#">Funcionários API</a>
-    <a href="vue.html" class="btn btn-outline-light btn-sm ms-auto">↔ Versão Vue</a>
+    <span class="navbar-brand">Funcionários API</span>
+    <a href="vue.html"><md-outlined-button>Vue</md-outlined-button></a>
   </div>
 </nav>
+</header>
 
 <main class="container py-4">
-  <div class="card shadow-sm">
-    <div class="card-body p-0">
-      <ul class="nav nav-tabs" id="employeesTab" role="tablist">
-        <li class="nav-item" role="presentation">
-          <a class="nav-link" id="inserir-tab-btn" data-bs-toggle="tab" data-bs-target="#tabInserir" href="#tabInserir" role="tab">Inserir</a>
-        </li>
-        <li class="nav-item" role="presentation">
-          <a class="nav-link active" id="listar-tab-btn" data-bs-toggle="tab" data-bs-target="#tabListar" href="#tabListar" role="tab" aria-current="page">Listar</a>
-        </li>
-        <li class="nav-item" role="presentation">
-          <a class="nav-link" id="alterar-tab-btn" data-bs-toggle="tab" data-bs-target="#tabAlterar" href="#tabAlterar" role="tab">Alterar</a>
-        </li>
-        <li class="nav-item" role="presentation">
-          <a class="nav-link" id="excluir-tab-btn" data-bs-toggle="tab" data-bs-target="#tabExcluir" href="#tabExcluir" role="tab">Excluir</a>
-        </li>
-        <li class="nav-item" role="presentation">
-          <a class="nav-link" id="sobre-tab-btn" data-bs-toggle="tab" data-bs-target="#tabSobre" href="#tabSobre" role="tab">Sobre</a>
-        </li>
-      </ul>
+  <div class="card">
+    <ul class="nav nav-tabs" id="employeesTab" role="tablist">
+      <li class="nav-item"><a class="nav-link" href="#tabInserir" role="tab" data-tab="0">Inserir</a></li>
+      <li class="nav-item"><a class="nav-link active" href="#tabListar" role="tab" data-tab="1" aria-current="page">Listar</a></li>
+      <li class="nav-item"><a class="nav-link" href="#tabAlterar" role="tab" data-tab="2">Alterar</a></li>
+      <li class="nav-item"><a class="nav-link" href="#tabExcluir" role="tab" data-tab="3">Excluir</a></li>
+      <li class="nav-item"><a class="nav-link" href="#tabSobre" role="tab" data-tab="4">Sobre</a></li>
+    </ul>
 
-      <div class="tab-content p-4" id="employeesTabContent">
-        <!-- Tab Inserir -->
-        <div class="tab-pane fade" id="tabInserir" role="tabpanel">
-          <h5 class="mb-3">Inserir Funcionário</h5>
+    <div class="tab-content" id="employeesTabContent">
+        <div class="tab-pane" id="tabInserir" role="tabpanel">
+          <h2 class="md-typescale-title-large">Inserir Funcionário</h2>
           <form id="formInserir">
-            <div class="mb-3">
-              <label for="nome" class="form-label">Nome</label>
-              <input id="nome" type="text" class="form-control" placeholder="Digite o nome" required />
-            </div>
-            <div class="mb-3">
-              <label for="salario" class="form-label">Salário</label>
-              <input id="salario" type="number" class="form-control" placeholder="Digite o salário" required />
-            </div>
-            <div class="mb-3">
-              <label for="idade" class="form-label">Idade</label>
-              <input id="idade" type="number" class="form-control" placeholder="Digite a idade" />
-            </div>
-            <button type="submit" class="btn btn-primary">Salvar</button>
+            <md-outlined-text-field id="nome" label="Nome" type="text" required class="field"></md-outlined-text-field>
+            <md-outlined-text-field id="salario" label="Salário" type="number" required class="field"></md-outlined-text-field>
+            <md-outlined-text-field id="idade" label="Idade" type="number" class="field"></md-outlined-text-field>
+            <md-filled-button type="submit">Salvar</md-filled-button>
           </form>
         </div>
 
-        <!-- Tab Listar -->
-        <div class="tab-pane fade show active" id="tabListar" role="tabpanel">
-          <h5 class="mb-3">Listar Funcionários</h5>
+        <div class="tab-pane show active" id="tabListar" role="tabpanel">
+          <div class="title-with-refresh">
+            <div class="title-refresh-group">
+              <h2 class="md-typescale-title-large">Listar Funcionários</h2>
+              <button type="button" class="btn-icon-refresh" id="btnRefreshList" title="Atualizar" aria-label="Atualizar lista">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+              </button>
+            </div>
+            <button type="button" class="btn-icon-trash" id="btnClearCache" title="Limpar cache de exclusões" aria-label="Limpar cache de exclusões">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+            </button>
+          </div>
+          <p id="msgListaVaziaCache" class="msg-listavazia hidden" role="alert">A lista está vazia porque todos os itens estão no cache de exclusões. Clique no ícone da lixeira (canto superior direito) para restaurar.</p>
           <div class="table-responsive">
-            <table class="table table-striped table-hover">
-              <thead class="table-primary">
+            <table class="table">
+              <thead>
                 <tr>
                   <th>ID</th>
                   <th>Nome</th>
@@ -75,69 +76,91 @@
               <tbody id="employeeTableBody"></tbody>
             </table>
           </div>
-          <div class="d-flex align-items-center gap-2 mt-3">
-            <button type="button" class="btn btn-outline-primary btn-sm" id="btnAnterior">Anterior</button>
-            <span id="infoPagina" class="text-muted">Página 1</span>
-            <button type="button" class="btn btn-outline-primary btn-sm" id="btnProximo">Próxima</button>
+          <div class="pagination">
+            <md-outlined-button id="btnAnterior">Anterior</md-outlined-button>
+            <span id="infoPagina" class="md-typescale-body-medium">Página 1</span>
+            <md-outlined-button id="btnProximo">Próxima</md-outlined-button>
           </div>
         </div>
 
-        <!-- Tab Alterar -->
-        <div class="tab-pane fade" id="tabAlterar" role="tabpanel">
-          <h5 class="mb-3">Alterar Funcionário</h5>
-          <div class="mb-3">
-            <label for="idAlterar" class="form-label">ID</label>
-            <div class="input-group">
-              <input id="idAlterar" type="number" class="form-control" placeholder="Digite o ID" />
-              <button type="button" class="btn btn-outline-primary" id="btnBuscar">Buscar</button>
-            </div>
+        <div class="tab-pane" id="tabAlterar" role="tabpanel">
+          <h2 class="md-typescale-title-large">Alterar Funcionário</h2>
+          <div class="input-group">
+            <md-outlined-text-field id="idAlterar" label="ID" type="number" class="field"></md-outlined-text-field>
+            <md-outlined-button id="btnBuscar">Buscar</md-outlined-button>
           </div>
           <form id="formAlterar">
-            <div class="mb-3">
-              <label for="nomeAlterar" class="form-label">Nome</label>
-              <input id="nomeAlterar" type="text" class="form-control" placeholder="Novo nome" />
-            </div>
-            <div class="mb-3">
-              <label for="salarioAlterar" class="form-label">Salário</label>
-              <input id="salarioAlterar" type="number" class="form-control" placeholder="Novo salário" />
-            </div>
-            <div class="mb-3">
-              <label for="idadeAlterar" class="form-label">Idade</label>
-              <input id="idadeAlterar" type="number" class="form-control" placeholder="Nova idade" />
-            </div>
-            <button type="submit" class="btn btn-primary">Atualizar</button>
+            <md-outlined-text-field id="nomeAlterar" label="Nome" type="text" class="field"></md-outlined-text-field>
+            <md-outlined-text-field id="salarioAlterar" label="Salário" type="number" class="field"></md-outlined-text-field>
+            <md-outlined-text-field id="idadeAlterar" label="Idade" type="number" class="field"></md-outlined-text-field>
+            <md-filled-button type="submit">Atualizar</md-filled-button>
           </form>
         </div>
 
-        <!-- Tab Excluir -->
-        <div class="tab-pane fade" id="tabExcluir" role="tabpanel">
-          <h5 class="mb-3">Excluir Funcionário</h5>
-          <div class="mb-3">
-            <label for="codigoExcluir" class="form-label">Código (ID)</label>
-            <input id="codigoExcluir" type="number" class="form-control" placeholder="Digite o ID" />
-          </div>
-          <button type="button" class="btn btn-danger" id="btnRemover">Remover</button>
+        <div class="tab-pane" id="tabExcluir" role="tabpanel">
+          <h2 class="md-typescale-title-large">Excluir Funcionário</h2>
+          <md-outlined-text-field id="codigoExcluir" label="Código (ID)" type="number" class="field"></md-outlined-text-field>
+          <md-filled-button id="btnRemover">Remover</md-filled-button>
         </div>
 
-        <!-- Tab Sobre -->
-        <div class="tab-pane fade" id="tabSobre" role="tabpanel">
-          <h5 class="mb-3">Sobre</h5>
-          <p>Este sistema foi desenvolvido para demonstrar um CRUD completo utilizando:</p>
+        <div class="tab-pane" id="tabSobre" role="tabpanel">
+          <h2 class="md-typescale-title-large">Sobre</h2>
+        
+          <h3>Sobre a Autora</h3>
+          <p>
+            Mayumi é estudante de Ciências da Computação na FURB, atualmente na 3ª fase.
+            Este projeto foi desenvolvido para a disciplina de Programação Web I,
+            com o objetivo de aplicar conceitos fundamentais de desenvolvimento web
+            utilizando JavaScript nativo e organização arquitetural.
+          </p>
+          <p>
+            A autora possui experiência com construção de microserviços e bancos de dados,
+            o que contribuiu para uma compreensão sólida sobre APIs REST, manipulação de dados
+            e organização lógica da aplicação.
+          </p>
+        
+          <h3>Sobre o Projeto</h3>
+          <p>
+            A aplicação implementa um CRUD completo (Create, Read, Update e Delete),
+            utilizando JavaScript Nativo (Vanilla JS) estruturado sob o padrão MVC modular.
+            O sistema integra consumo de API REST, persistência com LocalStorage e
+            organização separada entre Model, View e Controller.
+          </p>
+          <p>
+            A interface permite inserção, listagem com paginação, atualização e exclusão
+            de funcionários, além de notificações para tratamento de casos como
+            identificação inexistente.
+          </p>
+        
+          <h3>Desafios e Aprendizados</h3>
+          <p>
+            O principal desafio esteve na organização da aplicação utilizando arquitetura
+            MVC de forma modular, garantindo separação adequada de responsabilidades e
+            manutenção do código.
+          </p>
+          <p>
+            Para reforçar a confiabilidade dos dados, foi utilizada a biblioteca Zod
+            para validação das informações de entrada e das respostas da API,
+            assegurando maior integridade e consistência no sistema.
+          </p>
+        
+          <h3>Tecnologias Utilizadas</h3>
           <ul>
-            <li>JavaScript Nativo (Vanilla JS)</li>
-            <li>Arquitetura MVC modular</li>
-            <li>LocalStorage como persistência local</li>
-            <li>Integração com API REST</li>
-            <li>Validação com Zod</li>
+            <li>HTML5</li>
+            <li>CSS3</li>
+            <li>JavaScript Nativo (ES6+)</li>
+            <li>Arquitetura MVC Modular</li>
+            <li>Fetch API</li>
+            <li>Zod (validação de dados)</li>
+            <li>LocalStorage</li>
+            <li>API REST</li>
           </ul>
-          <p>A aplicação realiza operações de inserção, listagem, atualização e exclusão de funcionários.</p>
         </div>
-      </div>
     </div>
   </div>
 </main>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script type="module" src="../modules/employee/view.js"></script>
+<div id="notificationContainer" aria-live="polite"></div>
 </body>
 </html>

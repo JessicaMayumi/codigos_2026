@@ -26,10 +26,10 @@ export function createEmployee(employee) {
 
 export function updateEmployee(id, updatedData) {
     const storage = loadStorage();
-    console.log(`Updating employee ${id} in storage with data:`, updatedData);
-    console.log("Current storage before update:", storage);
-    storage.updated[id] = {
-        ...(storage.updated[id] || {}),
+    const key = String(id);
+    storage.updated = storage.updated || {};
+    storage.updated[key] = {
+        ...(storage.updated[key] || {}),
         ...updatedData
     };
     saveStorage(storage);
@@ -47,16 +47,17 @@ export function listEmployees() {
 
 export function deleteEmployee(id) {
     const storage = loadStorage();
-    console.log(`Deleting employee ${id} from storage`);
-    console.log("Current storage before deletion:", storage);
     const stId = String(id);
+    storage.deleted = storage.deleted || [];
+    storage.created = storage.created || [];
+    storage.updated = storage.updated || {};
 
     if (!storage.deleted.some((d) => String(d) === stId)) {
-        storage.deleted.push(id);
+        storage.deleted.push(stId);
     }
     storage.created = storage.created.filter((emp) => String(emp.id) !== stId);
-    if (storage.updated[id]) {
-        delete storage.updated[id];
+    if (storage.updated[stId]) {
+        delete storage.updated[stId];
     }
 
     saveStorage(storage);
@@ -78,8 +79,9 @@ export function getEmployee(id) {
         return created;
     }
 
-    if (storage.updated[id]) {
-        return { id, ...storage.updated[id] };
+    const patched = storage.updated?.[stId];
+    if (patched) {
+        return { id, ...patched };
     }
     console.log(`Employee ${id} not found in storage`);
     console.log("Current storage data:", storage);

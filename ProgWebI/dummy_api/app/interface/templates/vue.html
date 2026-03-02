@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Funcionários - Vue</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script type="importmap">
+    {
+      "imports": {
+        "@material/web/": "https://esm.run/@material/web/"
+      }
+    }
+  </script>
+  <script type="module">
+    import '@material/web/all.js';
+  </script>
+  <link rel="stylesheet" href="../modules/material-motion.css" />
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+
+<div id="app">
+  <header>
+  <nav class="navbar">
+    <div class="container">
+      <span class="navbar-brand">Funcionários API</span>
+      <a href="index.html"><md-outlined-button>Nativo</md-outlined-button></a>
+    </div>
+  </nav>
+  </header>
+
+  <main class="container py-4">
+    <div class="card">
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item"><a class="nav-link" :class="{ active: tabAtivo === 0 }" href="#" @click.prevent="tabAtivo = 0" role="tab">Inserir</a></li>
+        <li class="nav-item"><a class="nav-link" :class="{ active: tabAtivo === 1 }" href="#" @click.prevent="tabAtivo = 1" role="tab">Listar</a></li>
+        <li class="nav-item"><a class="nav-link" :class="{ active: tabAtivo === 2 }" href="#" @click.prevent="tabAtivo = 2" role="tab">Alterar</a></li>
+        <li class="nav-item"><a class="nav-link" :class="{ active: tabAtivo === 3 }" href="#" @click.prevent="tabAtivo = 3" role="tab">Excluir</a></li>
+        <li class="nav-item"><a class="nav-link" :class="{ active: tabAtivo === 4 }" href="#" @click.prevent="tabAtivo = 4" role="tab">Sobre</a></li>
+      </ul>
+
+      <div class="tab-content">
+        <div class="tab-pane" :class="{ show: true, active: tabAtivo === 0 }" v-show="tabAtivo === 0" id="tabInserir" role="tabpanel">
+          <h2 class="md-typescale-title-large">Inserir Funcionário</h2>
+          <form @submit.prevent="inserir">
+            <md-outlined-text-field label="Nome" type="text" :value="formInserir.nome" @input="formInserir.nome = $event.target?.value ?? ''" required class="field"></md-outlined-text-field>
+            <md-outlined-text-field label="Salário" type="number" :value="formInserir.salario" @input="formInserir.salario = $event.target?.value ?? ''" required class="field"></md-outlined-text-field>
+            <md-outlined-text-field label="Idade" type="number" :value="formInserir.idade" @input="formInserir.idade = $event.target?.value ?? ''" class="field"></md-outlined-text-field>
+            <md-filled-button type="submit">Salvar</md-filled-button>
+          </form>
+        </div>
+
+        <div class="tab-pane" :class="{ show: true, active: tabAtivo === 1 }" v-show="tabAtivo === 1" id="tabListar" role="tabpanel">
+          <div class="title-with-refresh">
+            <div class="title-refresh-group">
+              <h2 class="md-typescale-title-large">Listar Funcionários</h2>
+              <button type="button" class="btn-icon-refresh" @click="refreshEmployees" title="Atualizar" aria-label="Atualizar lista">
+                <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+              </button>
+            </div>
+            <button type="button" class="btn-icon-trash" @click="limparCache" title="Limpar cache de exclusões" aria-label="Limpar cache de exclusões">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+            </button>
+          </div>
+          <p v-show="funcionarios.length === 0" class="msg-listavazia" role="alert">A lista está vazia porque todos os itens estão no cache de exclusões. Clique no ícone da lixeira (canto superior direito) para restaurar.</p>
+          <div class="table-responsive">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nome</th>
+                  <th>Salário</th>
+                  <th>Idade</th>
+                  <th>Ações</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="emp in funcionariosPagina" :key="emp.id">
+                  <td>{{ emp.id }}</td>
+                  <td>{{ emp.employee_name }}</td>
+                  <td>{{ emp.employee_salary }}</td>
+                  <td>{{ emp.employee_age ?? '-' }}</td>
+                  <td>
+                    <md-filled-button class="btnDelete" type="button" @click.stop="excluirPorId(emp.id)">Excluir</md-filled-button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination">
+            <md-outlined-button :disabled="paginaAtual <= 1" @click="paginaAtual--">Anterior</md-outlined-button>
+            <span class="md-typescale-body-medium">Página {{ paginaAtual }} de {{ totalPaginas }}</span>
+            <md-outlined-button :disabled="paginaAtual >= totalPaginas" @click="paginaAtual++">Próxima</md-outlined-button>
+          </div>
+        </div>
+
+        <div class="tab-pane" :class="{ show: true, active: tabAtivo === 2 }" v-show="tabAtivo === 2" id="tabAlterar" role="tabpanel">
+          <h2 class="md-typescale-title-large">Alterar Funcionário</h2>
+          <div class="input-group">
+            <md-outlined-text-field ref="idAlterarRef" label="ID" type="number" :value="formAlterar.id" @input="formAlterar.id = $event.target?.value ?? ''" class="field"></md-outlined-text-field>
+            <md-outlined-button @click="buscarPorId">Buscar</md-outlined-button>
+          </div>
+          <form @submit.prevent="alterar">
+            <md-outlined-text-field label="Nome" type="text" :value="formAlterar.nome" @input="formAlterar.nome = $event.target?.value ?? ''" required class="field"></md-outlined-text-field>
+            <md-outlined-text-field label="Salário" type="number" :value="formAlterar.salario" @input="formAlterar.salario = $event.target?.value ?? ''" class="field"></md-outlined-text-field>
+            <md-outlined-text-field label="Idade" type="number" :value="formAlterar.idade" @input="formAlterar.idade = $event.target?.value ?? ''" class="field"></md-outlined-text-field>
+            <md-filled-button type="submit">Atualizar</md-filled-button>
+          </form>
+        </div>
+
+        <div class="tab-pane" :class="{ show: true, active: tabAtivo === 3 }" v-show="tabAtivo === 3" id="tabExcluir" role="tabpanel">
+          <h2 class="md-typescale-title-large">Excluir Funcionário</h2>
+          <md-outlined-text-field label="Código (ID)" type="number" :value="codigoExcluir" @input="codigoExcluir = $event.target?.value ?? ''" class="field"></md-outlined-text-field>
+          <md-filled-button @click="removerPorCodigo">Remover</md-filled-button>
+        </div>
+
+        <div class="tab-pane" :class="{ show: true, active: tabAtivo === 4 }" v-show="tabAtivo === 4" id="tabSobre" role="tabpanel">
+          <h2 class="md-typescale-title-large">Sobre</h2>
+          <h3>Sobre a Autora</h3>
+          <p>
+            Mayumi é estudante de Ciências da Computação na FURB, atualmente na 3ª fase do curso.
+            Este projeto foi desenvolvido para a disciplina de Programação Web I, com o objetivo
+            de aplicar conceitos fundamentais de desenvolvimento web, consumo de APIs e construção
+            de interfaces interativas.
+          </p>
+          <p>
+            Além do contexto acadêmico, possui experiência com construção de microserviços e
+            manipulação de bancos de dados, o que contribuiu para uma compreensão sólida sobre
+            arquitetura de APIs, organização de dados e lógica de aplicação.
+          </p>
+          
+          <h3>Sobre o Projeto</h3>
+          <p>
+            A aplicação consiste em um sistema com CRUD completo (Create, Read, Update e Delete),
+            integrando consumo de API REST, paginação de dados, notificações para tratamento de
+            identificadores inexistentes e persistência utilizando LocalStorage.
+          </p>
+          <p>
+            O projeto foi desenvolvido utilizando Vue 3, com foco em organização de componentes,
+            reatividade e boas práticas de desenvolvimento. A aplicação também apresenta
+            responsividade, garantindo adaptação adequada a diferentes dispositivos.
+          </p>
+          
+          <h3>Desafios e Aprendizados</h3>
+          <p>
+            Embora os conceitos de JavaScript, APIs e CRUD já fossem dominados, a utilização do
+            Vue 3 representou um desafio inicial, especialmente na adaptação ao modelo reativo
+            do framework. Com estudo e prática, foi possível estruturar corretamente os componentes
+            e o fluxo de dados da aplicação.
+          </p>
+          <p>
+            Para garantir maior integridade das informações, foi utilizada a biblioteca Zod
+            na validação dos dados de entrada e das respostas da API, reforçando a confiabilidade
+            da aplicação.
+          </p>
+          
+          <h3>Tecnologias Utilizadas</h3>
+          <ul>
+            <li>HTML5</li>
+            <li>CSS3</li>
+            <li>JavaScript (ES6+)</li>
+            <li>Vue 3</li>
+            <li>Fetch API</li>
+            <li>Zod (validação de dados)</li>
+            <li>LocalStorage</li>
+            <li>API REST</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<script type="module" src="../modules/employee/view-vue.js"></script>
+<div id="notificationContainer" aria-live="polite"></div>
+</body>
+</html>

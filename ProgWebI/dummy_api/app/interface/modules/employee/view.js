@@ -1,16 +1,18 @@
-// view.js (Vanilla JS - Modo Nativo)
+
 import {
   listEmployees,
   createEmployee,
   updateEmployee,
   deleteEmployee,
   getEmployeeById,
+  clearDeletedCache,
 } from "./controller.js";
 import { showNotification } from "../notifications.js";
+import {CONFIG} from "../../configs/settings.js";
 
 // -------------------- Estado (paginação) --------------------
 let currentPage = 1;
-const pageSize = 8;
+const pageSize = CONFIG.PAGE_SIZE;
 let cachedEmployees = [];
 
 // -------------------- Elementos DOM --------------------
@@ -30,6 +32,9 @@ const idadeAlterar = document.getElementById("idadeAlterar");
 const btnBuscar = document.getElementById("btnBuscar");
 const codigoExcluir = document.getElementById("codigoExcluir");
 const btnRemover = document.getElementById("btnRemover");
+const btnRefreshList = document.getElementById("btnRefreshList");
+const btnClearCache = document.getElementById("btnClearCache");
+const msgListaVaziaCache = document.getElementById("msgListaVaziaCache");
 
 // -------------------- Render --------------------
 function renderTablePage() {
@@ -48,12 +53,12 @@ function renderTablePage() {
   for (const emp of pageItems) {
     const tr = document.createElement("tr");
     tr.innerHTML = `
-      <td>${emp.id}</td>
-      <td>${emp.employee_name}</td>
-      <td>${emp.employee_salary}</td>
-      <td>${emp.employee_age ?? "-"}</td>
-      <td>
-        <button type="button" class="btn btn-danger btn-sm btnDelete" data-id="${emp.id}">Excluir</button>
+      <td data-label="ID">${emp.id}</td>
+      <td data-label="Nome">${emp.employee_name}</td>
+      <td data-label="Salário">${emp.employee_salary}</td>
+      <td data-label="Idade">${emp.employee_age ?? "-"}</td>
+      <td data-label="Ações">
+        <md-filled-button class="btnDelete" type="button" data-id="${emp.id}">Excluir</md-filled-button>
       </td>
     `;
     tableBody.appendChild(tr);
@@ -62,14 +67,23 @@ function renderTablePage() {
   if (infoPagina) infoPagina.textContent = `Página ${currentPage} de ${totalPages}`;
   if (btnAnterior) btnAnterior.disabled = currentPage <= 1;
   if (btnProximo) btnProximo.disabled = currentPage >= totalPages;
+
+  if (msgListaVaziaCache) {
+    msgListaVaziaCache.classList.toggle("hidden", total > 0);
+  }
 }
 
 async function refreshEmployees() {
   try {
     const res = await listEmployees();
-    cachedEmployees = res.data || [];
+    cachedEmployees = res?.data ?? [];
+    console.log("[refreshEmployees] recebidos:", cachedEmployees.length, "funcionários");
+    if (!tableBody) {
+      console.error("[refreshEmployees] tableBody (employeeTableBody) não encontrado no DOM");
+    }
     renderTablePage();
   } catch (err) {
+    console.error("[refreshEmployees] erro:", err);
     showNotification(err?.message || "Erro ao carregar funcionários.", "danger");
   }
 }
@@ -79,13 +93,30 @@ async function refreshEmployees() {
 if (formInserir) {
   formInserir.addEventListener("submit", async (e) => {
     e.preventDefault();
+    const nomeVal = String(nome?.value ?? "").trim();
+    const salarioVal = String(salario?.value ?? "").trim();
+    if (!nomeVal) {
+      showNotification("Nome é obrigatório.", "warning");
+      return;
+    }
+    if (!salarioVal) {
+      showNotification("Salário é obrigatório.", "warning");
+      return;
+    }
+    const salNum = parseFloat(salarioVal);
+    if (Number.isNaN(salNum) || salNum < 0) {
+      showNotification("Salário deve ser um número válido e não negativo.", "warning");
+      return;
+    }
     try {
       await createEmployee({
-        name: nome.value,
-        salary: salario.value,
-        age: idade.value,
+        name: nomeVal,
+        salary: salarioVal,
+        age: idade?.value ?? "",
       });
-      formInserir.reset();
+      if (nome) nome.value = '';
+      if (salario) salario.value = '';
+      if (idade) idade.value = '';
       currentPage = 1;
       await refreshEmployees();
       showNotification("Funcionário inserido com sucesso.", "success");
@@ -97,8 +128,16 @@ if (formInserir) {
 
 if (btnBuscar) {
   btnBuscar.addEventListener("click", async () => {
-    const id = idAlterar?.value;
-    if (!id) return showNotification("Digite o ID para buscar.", "warning");
+    const id = (idAlterar?.value ?? "").toString().trim();
+    if (!id) {
+      showNotification("Digite o ID para buscar.", "warning");
+      return;
+    }
+    const idNum = parseInt(id, 10);
+    if (Number.isNaN(idNum) || idNum < 0) {
+      showNotification("ID deve ser um número válido.", "warning");
+      return;
+    }
     try {
       const res = await getEmployeeById(id);
       const emp = res?.data;
@@ -120,13 +159,41 @@ if (btnBuscar) {
 if (formAlterar) {
   formAlterar.addEventListener("submit", async (e) => {
     e.preventDefault();
+    const id = (idAlterar?.value ?? "").toString().trim();
+    if (!id) {
+      showNotification("Digite o ID do funcionário para alterar.", "warning");
+      return;
+    }
+    const idNum = Number(id);
+    if (Number.isNaN(idNum) || idNum < 0) {
+      showNotification("ID deve ser um número válido.", "warning");
+      return;
+    }
+    const nomeVal = String(nomeAlterar?.value ?? "").trim();
+    const salarioVal = String(salarioAlterar?.value ?? "").trim();
+    if (!nomeVal) {
+      showNotification("Nome é obrigatório para alterar.", "warning");
+      return;
+    }
+    if (!salarioVal) {
+      showNotification("Salário é obrigatório para alterar.", "warning");
+      return;
+    }
+    const salNum = parseFloat(salarioVal);
+    if (Number.isNaN(salNum) || salNum < 0) {
+      showNotification("Salário deve ser um número válido e não negativo.", "warning");
+      return;
+    }
     try {
-      await updateEmployee(idAlterar.value, {
-        name: nomeAlterar.value,
-        salary: salarioAlterar.value,
-        age: idadeAlterar.value,
+      await updateEmployee(idNum, {
+        name: nomeVal,
+        salary: salarioVal,
+        age: idadeAlterar?.value ?? "",
       });
-      formAlterar.reset();
+      if (idAlterar) idAlterar.value = '';
+      if (nomeAlterar) nomeAlterar.value = '';
+      if (salarioAlterar) salarioAlterar.value = '';
+      if (idadeAlterar) idadeAlterar.value = '';
       await refreshEmployees();
       showNotification("Funcionário atualizado com sucesso.", "success");
     } catch (err) {
@@ -137,8 +204,16 @@ if (formAlterar) {
 
 if (btnRemover) {
   btnRemover.addEventListener("click", async () => {
-    const id = codigoExcluir.value;
-    if (!id) return showNotification("Digite o ID para excluir.", "warning");
+    const id = (codigoExcluir?.value ?? "").toString().trim();
+    if (!id) {
+      showNotification("Digite o ID para excluir.", "warning");
+      return;
+    }
+    const idNum = parseInt(id, 10);
+    if (Number.isNaN(idNum) || idNum < 0) {
+      showNotification("ID deve ser um número válido.", "warning");
+      return;
+    }
     try {
       await deleteEmployee(id);
       codigoExcluir.value = "";
@@ -165,6 +240,18 @@ if (tableBody) {
   });
 }
 
+if (btnRefreshList) {
+  btnRefreshList.addEventListener("click", () => refreshEmployees());
+}
+
+if (btnClearCache) {
+  btnClearCache.addEventListener("click", async () => {
+    clearDeletedCache();
+    await refreshEmployees();
+    showNotification("Cache de exclusões limpo.", "success");
+  });
+}
+
 if (btnAnterior) {
   btnAnterior.addEventListener("click", () => {
     currentPage -= 1;
@@ -178,5 +265,20 @@ if (btnProximo) {
   });
 }
 
-// -------------------- Init --------------------
+const tabList = document.getElementById("employeesTab");
+if (tabList) {
+  tabList.addEventListener("click", (e) => {
+    const link = e.target.closest(".nav-link");
+    if (!link || link.getAttribute("role") !== "tab") return;
+    e.preventDefault();
+    const targetId = link.getAttribute("href")?.slice(1);
+    if (!targetId) return;
+    document.querySelectorAll(".tab-pane").forEach((p) => p.classList.remove("show", "active"));
+    document.querySelectorAll(".nav-link").forEach((l) => l.classList.remove("active"));
+    const pane = document.getElementById(targetId);
+    if (pane) pane.classList.add("show", "active");
+    link.classList.add("active");
+  });
+}
+
 refreshEmployees();

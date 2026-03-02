@@ -1,10 +1,17 @@
 import {z} from "https://cdn.jsdelivr.net/npm/zod@3.23.8/+esm";
 
-const EmployeeId = z.coerce.number().int().nonnegative();
-const EmployeeName = z.string().trim().min(1, "Nome é obrigatório");
-const EmployeeSalary = z.coerce.number().nonnegative("Salário não pode ser negativo");
-const EmployeeAge = z.coerce.number().int().nonnegative().optional();
-const EmployeeProfileImage = z.string().optional();
+const EmployeeId = z.union([z.coerce.number(), z.string()]).transform(v => (typeof v === "string" ? parseInt(v, 10) || 0 : v));
+const EmployeeName = z.string().trim().default("");
+const EmployeeSalary = z.union([z.coerce.number(), z.string()]).transform(v => {
+    const n = typeof v === "string" ? parseFloat(v) : v;
+    return Number.isNaN(n) || n < 0 ? 0 : n;
+});
+const EmployeeAge = z.union([z.coerce.number(), z.string()]).optional().transform(v => {
+    if (v === undefined || v === null || v === "") return undefined;
+    const n = typeof v === "string" ? parseInt(v, 10) : v;
+    return Number.isNaN(n) || n < 0 ? undefined : n;
+});
+const EmployeeProfileImage = z.string().optional().default("");
 
 export const EmployeeSchema = z.object({
     id: EmployeeId,
@@ -33,7 +40,7 @@ export const GetEmployeeResponse = z.object({
 
 // --- Create Employee ---
 export const CreateEmployeeRequest = z.object({
-    name: EmployeeName,
+    name: EmployeeName.refine((s) => s.length >= 1, "Nome é obrigatório"),
     salary: EmployeeSalary,
     age: EmployeeAge
 })
@@ -50,8 +57,7 @@ export const CreateEmployeeResponse = z.object({
 
 // --- Update Employee ---
 export const UpdateEmployeeRequest = z.object({
-    id: EmployeeId,
-    name: EmployeeName,
+    name: EmployeeName.refine((s) => s.length >= 1, "Nome é obrigatório"),
     salary: EmployeeSalary,
     age: EmployeeAge
 })

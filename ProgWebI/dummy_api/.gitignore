@@ -1,9 +1,34 @@
+# Banco SQLite
+*.db
 employees.db
+app/integrations/employees.db
 
 # Python
 venv/
+.venv/
 __pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
 
 # Node
 node_modules/
 package-lock.json
+
+# Ambiente
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# SO
+.DS_Store
+Thumbs.db

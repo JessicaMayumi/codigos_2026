@@ -1,5 +1,6 @@
 import {
-    ListEmployeesResponse, GetEmployeeRequest, GetEmployeeResponse,
+    ListEmployeesResponse, EmployeeSchema, 
+    GetEmployeeRequest, GetEmployeeResponse,
     CreateEmployeeRequest, CreateEmployeeResponse,
     UpdateEmployeeRequest, UpdateEmployeeResponse,
     DeleteEmployeeRequest, DeleteEmployeeResponse,
@@ -8,7 +9,18 @@ import {request} from "../http.js";
 
 export async function apiListEmployees() {
     const raw = await request("/employees");
-    return ListEmployeesResponse.parse(raw);
+    const parsed = ListEmployeesResponse.safeParse(raw);
+    if (parsed.success) return parsed.data;
+    const arr = Array.isArray(raw?.data) ? raw.data : Array.isArray(raw) ? raw : [];
+    const items = arr.map((e) => {
+        const r = EmployeeSchema.safeParse(e);
+        if (!r.success) {
+            console.warn("[apiListEmployees] Item ignorado (validação):", e, r.error?.issues);
+            return null;
+        }
+        return r.data;
+    }).filter((x) => x != null);
+    return { status: raw?.status ?? "success", data: items };
 }
 
 export async function apiGetEmployeeById(id) {
@@ -29,7 +41,7 @@ export async function apiCreateEmployee(payload) {
 }
 
 export async function apiUpdateEmployee(id, payload) {
-    const parsedSchema = UpdateEmployeeRequest.parse(payload);
+    const parsedSchema = CreateEmployeeRequest.parse(payload);
     const raw = await request(`/update/${encodeURIComponent(id)}`, {
         method: "PUT",
         body: { name: parsedSchema.name, 

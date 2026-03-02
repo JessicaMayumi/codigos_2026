@@ -23,7 +23,6 @@ app.add_middleware(
 
 app.include_router(api_router)
 
-# Servir frontend (modo nativo)
 INTERFACE_DIR = Path(__file__).resolve().parent / "interface"
 if INTERFACE_DIR.exists():
     app.mount("/static", StaticFiles(directory=str(INTERFACE_DIR)), name="static")
@@ -31,9 +30,9 @@ if INTERFACE_DIR.exists():
 
 @app.get("/")
 def root():
-    return RedirectResponse(url="interface/templates/index.html")
+    return RedirectResponse(url="/static/templates/index.html")
 
 
 @app.get("/vue")
 def vue_root():
-    return RedirectResponse(url="interface/templates/vue.html")
+    return RedirectResponse(url="/static/templates/vue.html")
