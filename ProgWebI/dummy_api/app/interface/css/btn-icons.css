@@ -1,0 +1,117 @@
+.material-icons {
+  font-family: 'Material Icons';
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  display: inline-block;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: 'liga';
+  -webkit-font-feature-settings: 'liga';
+}
+
+.btn-icon-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: "Nunito", sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  line-height: 1;
+  overflow: visible;
+}
+
+.btn-icon-text .material-icons {
+  font-size: 18px;
+  flex-shrink: 0;
+  overflow: visible;
+  line-height: 1;
+  transform: translateY(0.3px);
+}
+
+/* Botões unificados: ícone à esquerda em bloco quadrado + texto à direita */
+.btn-unified {
+  padding: 0 !important;
+}
+
+.btn-unified .btn-icon-text {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  border-radius: var(--app-radius);
+  padding: 0.25rem 0.5rem;
+}
+
+.btn-unified .btn-icon-block {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  min-width: 28px;
+  flex-shrink: 0;
+}
+
+.btn-unified .btn-icon-block.material-icons {
+  font-size: 20px;
+}
+
+.btn-unified .btn-icon-block.icon-close {
+  font-size: 21px;
+  -webkit-text-stroke: 0.4px currentColor;
+}
+
+.btn-unified .btn-icon-text > span:last-child {
+  padding: 0;
+}
+
+md-filled-button .btn-icon-text,
+md-outlined-button .btn-icon-text {
+  padding: 0 2px;
+}
+
+md-filled-button,
+md-outlined-button {
+  font-weight: 700;
+}
+
+.btn-icon-only {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 0.5rem;
+}
+
+.btn-icon-only .material-icons {
+  font-size: 22px;
+}
+
+.btn-icon-refresh .material-icons,
+.btn-icon-trash .material-icons {
+  font-size: 22px;
+}
+
+/* Material Symbols para setas da navbar */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: 400;
+  font-style: normal;
+  font-size: 20px;
+  display: inline-block;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+}
+
+.nav-arrow {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.pagination-arrow {
+  font-size: 20px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}

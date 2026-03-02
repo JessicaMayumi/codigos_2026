@@ -1,0 +1,71 @@
+/* --- Tabela botão Delete */
+.btnDelete {
+  --md-sys-color-primary: #b3261e;
+  --md-sys-color-on-primary: #fff;
+}
+
+/* --- Vue TransitionGroup para notificações --- */
+.vue-toast-enter-active,
+.vue-toast-leave-active {
+  transition: all var(--md-duration-medium) var(--md-easing-emphasized-decelerate);
+}
+
+.vue-toast-enter-from,
+.vue-toast-leave-to {
+  opacity: 0;
+  transform: translateX(100%);
+}
+
+.vue-toast-enter-to,
+.vue-toast-leave-from {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.vue-toast-move {
+  transition: transform var(--md-duration-medium) var(--md-easing-emphasized-decelerate);
+}
+
+/* --- Container e estilos das notificações Vue --- */
+.vue-notification-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: min(90vw, 360px);
+  pointer-events: none;
+}
+
+.vue-notification-container .vue-toast {
+  padding: 0.75rem 1rem;
+  border-radius: var(--app-radius);
+  color: #fff;
+  font-size: 0.9rem;
+  pointer-events: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.vue-toast-success { background-color: #198754; }
+.vue-toast-danger { background-color: #dc3545; }
+.vue-toast-warning { background-color: #ffc107; color: #212529; }
+.vue-toast-info { background-color: #0dcaf0; color: #212529; }
+
+/* --- Responsividade Vue --- */
+@media (max-width: 768px) {
+  .navbar .container {
+    flex-wrap: wrap;
+  }
+
+  .vue-responsive-mobile .table th,
+  .vue-responsive-mobile .table td {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .vue-responsive-mobile .btn-icon-text .material-icons {
+    font-size: 16px;
+  }
+}

@@ -48,6 +48,10 @@ const app = createApp({
     },
   },
   methods: {
+    formatarSalario(v) {
+      const n = parseFloat(v);
+      return Number.isNaN(n) ? "R$ 0,00" : n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    },
     notify(message, type = "info") {
       const id = ++this.notificationId;
       this.notifications.push({ id, message, type });

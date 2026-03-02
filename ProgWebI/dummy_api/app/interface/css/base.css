@@ -1,25 +1,11 @@
 @import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700&display=swap");
 
-/* Material Symbols*/
-.material-symbols-outlined {
-  font-family: 'Material Symbols Outlined';
-  font-weight: normal;
-  font-style: normal;
-  font-size: 24px;
-  display: inline-block;
-  line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  white-space: nowrap;
-  direction: ltr;
-  -webkit-font-smoothing: antialiased;
-}
-
 :root {
   --app-primary: #171673;
   --app-accent: #eba834;
   --app-background: #dddded;
+  --app-radius: 0.5rem;
+  --app-radius-sm: 0.375rem;
 
   --md-ref-typeface-brand: 'Nunito', sans-serif;
   --md-ref-typeface-plain: 'Nunito', sans-serif;
@@ -51,6 +37,14 @@
 }
 
 * { box-sizing: border-box; }
+
+/* Padroniza border-radius dos componentes Material Web */
+md-filled-button, md-outlined-button, md-filled-tonal-button, md-text-button, md-elevated-button {
+  --md-filled-button-container-shape: var(--app-radius);
+  --md-outlined-button-container-shape: var(--app-radius);
+  --md-filled-tonal-button-container-shape: var(--app-radius);
+  --md-elevated-button-container-shape: var(--app-radius);
+}
 
 html, body {
   margin: 0;
@@ -140,7 +134,7 @@ body *, .navbar, .navbar-brand, .nav-link, .tab-content, .tab-pane {
   font-size: 1rem;
   line-height: 1.5;
   border: 1px solid #ced4da;
-  border-radius: 0.25rem;
+  border-radius: var(--app-radius);
 }
 
 .form-control:focus,
@@ -159,7 +153,7 @@ body *, .navbar, .navbar-brand, .nav-link, .tab-content, .tab-pane {
   text-align: center;
   text-decoration: none;
   border: 1px solid;
-  border-radius: 0.25rem;
+  border-radius: var(--app-radius);
   cursor: pointer;
 }
 
@@ -189,7 +183,7 @@ body *, .navbar, .navbar-brand, .nav-link, .tab-content, .tab-pane {
   color: #fff;
 }
 
-/* --- Navbar (comum) --- */
+/* --- Navbar --- */
 .navbar {
   display: flex;
   align-items: center;
@@ -209,13 +203,33 @@ body *, .navbar, .navbar-brand, .nav-link, .tab-content, .tab-pane {
   margin-right: auto;
 }
 
-.navbar md-outlined-button {
-  --md-sys-color-outline: #eba834;
-  --md-sys-color-on-surface: #eba834;
+.navbar .navbar-switcher-circle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.4rem 1rem;
+  border-radius: var(--app-radius);
+  background-color: var(--app-accent);
+  color: var(--app-primary);
+  text-decoration: none;
+  transition: background-color 0.2s;
+  font-family: "Nunito", sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
 }
 
-.navbar md-outlined-button:hover {
-  --md-sys-color-surface-container-highest: rgba(235, 168, 52, 0.2);
+.navbar .navbar-switcher-circle:hover {
+  background-color: #f0bc4a;
+}
+
+.navbar .navbar-switcher-circle .nav-arrow {
+  font-size: 18px;
+}
+
+.navbar .navbar-switcher-label {
+  line-height: 1;
+  text-align: center;
 }
 
 .navbar .btn-outline-light:hover {
@@ -224,27 +238,56 @@ body *, .navbar, .navbar-brand, .nav-link, .tab-content, .tab-pane {
   color: var(--app-primary);
 }
 
-/* --- Card e abas (comum) --- */
+/* --- Card e abas --- */
 .card {
   background-color: #fff;
-  border-radius: 0.25rem;
+  border-radius: var(--app-radius);
   box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
 }
 
-.nav { display: flex; flex-wrap: wrap; list-style: none; margin: 0; padding: 0; }
-.nav-tabs { border-bottom: 1px solid #dee2e6; }
-.nav-item { display: flex; }
+.nav {
+  display: flex;
+  flex-wrap: nowrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.nav-tabs {
+  border-bottom: 1px solid #dee2e6;
+  width: 100%;
+}
+.nav-item {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+}
 
 .nav-link {
-  display: block;
-  padding: 0.5rem 1rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  flex: 1;
+  padding: 0.5rem 0.5rem;
   color: #495057;
   text-decoration: none;
   border: 1px solid transparent;
-  border-radius: 0.25rem 0.25rem 0 0;
+  border-radius: var(--app-radius) var(--app-radius) 0 0;
   transition: background-color var(--md-duration-short) var(--md-easing-standard),
               color var(--md-duration-short) var(--md-easing-standard),
               border-color var(--md-duration-short) var(--md-easing-standard);
+  font-weight: 700;
+}
+
+.nav-tab-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 576px) {
+  .nav-tab-icon { font-size: 18px; }
+  .nav-link span:last-child { font-size: 0.8rem; }
 }
 
 .nav-tabs .nav-link { color: var(--app-primary); }
@@ -257,6 +300,7 @@ body *, .navbar, .navbar-brand, .nav-link, .tab-content, .tab-pane {
   border-color: #dee2e6 #dee2e6 #fff;
   color: var(--app-primary);
   border-bottom: 3px solid var(--app-accent);
+  border-radius: var(--app-radius) var(--app-radius) 0 0;
 }
 
 .tab-content { padding: 1.5rem; }
@@ -267,7 +311,7 @@ body *, .navbar, .navbar-brand, .nav-link, .tab-content, .tab-pane {
 .tab-content form .field:last-of-type { margin-bottom: 1rem; }
 .tab-content h2 { margin-bottom: 1.5rem; }
 
-/* --- Title com refresh e trash (comum) --- */
+/* --- Title com refresh e trash --- */
 .title-with-refresh {
   display: flex;
   align-items: center;
@@ -288,16 +332,11 @@ body *, .navbar, .navbar-brand, .nav-link, .tab-content, .tab-pane {
   height: 36px;
   padding: 0;
   border: none;
-  border-radius: 50%;
+  border-radius: var(--app-radius);
   background: transparent;
   color: var(--app-primary);
   cursor: pointer;
   transition: background-color 0.2s, color 0.2s;
-}
-
-.btn-icon-refresh .material-symbols-outlined,
-.btn-icon-trash .material-symbols-outlined {
-  font-size: 22px;
 }
 
 .btn-icon-refresh:hover,
@@ -316,15 +355,23 @@ body *, .navbar, .navbar-brand, .nav-link, .tab-content, .tab-pane {
   padding: 0.75rem 1rem;
   background: #fff3cd;
   color: #856404;
-  border-radius: 0.25rem;
+  border-radius: var(--app-radius);
   font-size: 0.9rem;
 }
 
 .input-group {
   display: flex;
   gap: 0.5rem;
-  align-items: flex-end;
+  align-items: stretch;
   margin-bottom: 1rem;
+}
+
+.input-group .btn-icon-only {
+  width: 56px;
+  min-width: 56px;
+  height: 56px;
+  padding: 0;
+  flex-shrink: 0;
 }
 
 .input-group .field,
@@ -345,8 +392,59 @@ body *, .navbar, .navbar-brand, .nav-link, .tab-content, .tab-pane {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  margin-top: 1rem;
+  gap: 1.5rem;
+  margin-top: 2.25rem;
+  margin-bottom: 0.5rem;
+  padding: 1rem 0;
+  width: 100%;
+}
+
+.pagination-info {
+  min-width: 7rem;
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.6);
+  line-height: 40px;
+  flex-shrink: 0;
+}
+
+.pagination-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid #dee2e6;
+  border-radius: var(--app-radius);
+  background: #fff;
+  color: #495057;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background-color: rgba(23, 22, 115, 0.08);
+  border-color: rgba(23, 22, 115, 0.3);
+  color: var(--app-primary);
+}
+
+.pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pagination-btn .pagination-arrow {
+  font-size: 18px;
+  line-height: 1;
+  display: block;
+}
+
+.pagination-btn:first-child .pagination-arrow {
+  transform: translate(2px, -1px);
 }
 
 /* --- Animação Material das linhas da tabela --- */
@@ -378,6 +476,39 @@ body *, .navbar, .navbar-brand, .nav-link, .tab-content, .tab-pane {
 
 .table tbody tr:hover {
   background-color: rgba(23, 22, 115, 0.08) !important;
+}
+
+/* --- Notificações --- */
+#notificationContainer {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: min(90vw, 360px);
+  pointer-events: none;
+}
+
+#notificationContainer .toast {
+  padding: 0.75rem 1rem;
+  border-radius: var(--app-radius);
+  color: #fff;
+  font-size: 0.9rem;
+  pointer-events: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  animation: toast-enter var(--md-duration-medium) var(--md-easing-emphasized-accelerate) forwards;
+}
+
+.toast-success { background-color: #198754; }
+.toast-danger { background-color: #dc3545; }
+.toast-warning { background-color: #ffc107; color: #212529; }
+.toast-info { background-color: #0dcaf0; color: #212529; }
+
+@keyframes toast-enter {
+  from { opacity: 0; transform: translateX(100%); }
+  to { opacity: 1; transform: translateX(0); }
 }
 
 /* --- Utilitários --- */

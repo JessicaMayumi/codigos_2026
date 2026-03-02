@@ -38,43 +38,9 @@ md-tabs {
   --md-primary-tab-active-indicator-color: var(--app-accent);
 }
 
-/* --- Notificações --- */
-#notificationContainer {
-  position: fixed;
-  top: 1rem;
-  right: 1rem;
-  z-index: 9999;
-}
-
-.toast {
-  padding: 0.75rem 1rem;
-  margin-bottom: 0.5rem;
-  border-radius: 0.25rem;
-  color: #fff;
-  animation: md-snackbar-enter var(--md-duration-medium) var(--md-easing-emphasized-accelerate) forwards;
-}
-
-.toast-success { background-color: #198754; }
-.toast-danger { background-color: #dc3545; }
-.toast-warning { background-color: #ffc107; color: #000; }
-.toast-info { background-color: #0dcaf0; color: #000; }
-
-@keyframes md-snackbar-enter {
-  from {
-    opacity: 0;
-    transform: translateY(-100%) scale(0.9);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-#notificationContainer .toast.showing {
-  animation: md-snackbar-enter var(--md-duration-medium) var(--md-easing-emphasized-decelerate) forwards;
-}
-
 /* --- Responsivo nativo --- */
 @media (max-width: 768px) {
-  .navbar .container { flex-wrap: wrap; }
+  .navbar .container {
+    flex-wrap: wrap;
+  }
 }

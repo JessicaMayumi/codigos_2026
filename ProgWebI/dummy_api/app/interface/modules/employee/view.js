@@ -49,16 +49,21 @@ function renderTablePage() {
   const end = start + pageSize;
   const pageItems = cachedEmployees.slice(start, end);
 
+  const formatarSalario = (v) => {
+    const n = parseFloat(v);
+    return Number.isNaN(n) ? "R$ 0,00" : n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+  };
+
   tableBody.innerHTML = "";
   for (const emp of pageItems) {
     const tr = document.createElement("tr");
     tr.innerHTML = `
       <td data-label="ID">${emp.id}</td>
       <td data-label="Nome">${emp.employee_name}</td>
-      <td data-label="Salário">${emp.employee_salary}</td>
+      <td data-label="Salário">${formatarSalario(emp.employee_salary)}</td>
       <td data-label="Idade">${emp.employee_age ?? "-"}</td>
       <td data-label="Ações">
-        <md-filled-button class="btnDelete" type="button" data-id="${emp.id}">Excluir</md-filled-button>
+        <md-filled-button class="btnDelete btn-unified" type="button" data-id="${emp.id}"><span class="btn-icon-text"><span class="btn-icon-block icon-close material-icons">close</span><span>Excluir</span></span></md-filled-button>
       </td>
     `;
     tableBody.appendChild(tr);
@@ -289,10 +294,12 @@ if (tabList) {
     e.preventDefault();
     const targetId = link.getAttribute("href")?.slice(1);
     if (!targetId) return;
-    document.querySelectorAll(".tab-pane").forEach((p) => p.classList.remove("show", "active"));
-    document.querySelectorAll(".nav-link").forEach((l) => l.classList.remove("active"));
     const pane = document.getElementById(targetId);
     if (pane) pane.classList.add("show", "active");
+    document.querySelectorAll(".tab-pane").forEach((p) => {
+      if (p !== pane) p.classList.remove("show", "active");
+    });
+    document.querySelectorAll(".nav-link").forEach((l) => l.classList.remove("active"));
     link.classList.add("active");
   });
 }
