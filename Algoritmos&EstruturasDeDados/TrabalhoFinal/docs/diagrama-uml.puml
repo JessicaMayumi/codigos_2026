@@ -1,0 +1,152 @@
+@startuml diagrama-classes-buscador
+title Buscador de Arquivos - Diagrama de Classes\nFURB - Algoritmos e Estruturas de Dados
+
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam classBackgroundColor #FAFAFA
+skinparam classBorderColor #555555
+skinparam packageStyle rectangle
+skinparam linetype ortho
+
+package "br.furb.buscador.estruturas" #EEF6FF {
+
+    class "No<T>" as No {
+        - valor : T
+        - proximo : No<T>
+        + getValor() : T
+        + setValor(v : T)
+        + getProximo() : No<T>
+        + setProximo(n : No<T>)
+    }
+
+    class "Lista<T>" as Lista {
+        - cabeca : No<T>
+        - cauda : No<T>
+        - tamanho : int
+        + adicionar(v : T)
+        + remover(v : T) : boolean
+        + contem(v : T) : boolean
+        + obter(i : int) : T
+        + tamanho() : int
+        + estaVazia() : boolean
+        + primeiro() : No<T>
+        + limpar()
+    }
+
+    class "EntradaMapa<K,V>" as Entrada {
+        - chave : K
+        - valor : V
+        + getChave() : K
+        + getValor() : V
+        + setValor(v : V)
+    }
+
+    class "MapaDispersao<K,V>" as Mapa {
+        - {static} CAPACIDADE_INICIAL : int = 16
+        - {static} FATOR_CARGA_MAXIMO : double = 0.75
+        - baldes : Lista<EntradaMapa<K,V>>[]
+        - tamanho : int
+        + colocar(k : K, v : V)
+        + obter(k : K) : V
+        + contemChave(k : K) : boolean
+        + tamanho() : int
+        + capacidade() : int
+        + chaves() : Lista<K>
+        + entradas() : Lista<EntradaMapa<K,V>>
+        - indiceBalde(k : K, cap : int) : int
+        - redimensionar()
+    }
+
+    Lista *-- "0..*" No : cabeca/proximo
+    Mapa *-- "0..*" Lista : baldes (array)
+    Lista ..> Entrada : armazena
+}
+
+package "br.furb.buscador.modelo" #F1FBEE {
+
+    class Documento {
+        - caminho : String
+        + Documento(caminho : String)
+        + getCaminho() : String
+        + equals(o : Object) : boolean
+        + hashCode() : int
+        + toString() : String
+    }
+
+    class Indice {
+        - mapa : MapaDispersao<String, Lista<Documento>>
+        + adicionarOcorrencia(palavra : String, doc : Documento)
+        + documentosCom(palavra : String) : Lista<Documento>
+        + totalPalavras() : int
+        + getMapa() : MapaDispersao<String, Lista<Documento>>
+    }
+
+    Indice *-- "1" Mapa : usa
+    Mapa ..> Documento : valores
+}
+
+package "br.furb.buscador.servico" #FFF7E6 {
+
+    class ExtratorPalavras <<utility>> {
+        + {static} extrair(texto : String) : Lista<String>
+        - {static} adicionarSeValida(lista : Lista<String>, token : String)
+    }
+
+    class Indexador {
+        - arquivosIndexados : int
+        - palavrasProcessadas : int
+        + indexar(dir : File) : Indice
+        + getArquivosIndexados() : int
+        + getPalavrasProcessadas() : int
+        - percorrer(dir : File, indice : Indice)
+        - indexarArquivo(arq : File, indice : Indice)
+    }
+
+    class Buscador {
+        - indice : Indice
+        + Buscador(indice : Indice)
+        + buscar(termos : Lista<String>) : Lista<Documento>
+        - copiar(origem : Lista<Documento>) : Lista<Documento>
+        - intersecao(a : Lista<Documento>, b : Lista<Documento>) : Lista<Documento>
+    }
+
+    class PersistenciaIndice {
+        - {static} CABECALHO : String
+        - {static} SEPARADOR : String
+        + salvar(indice : Indice, arq : File)
+        + carregar(arq : File) : Indice
+    }
+
+    Indexador ..> ExtratorPalavras : usa
+    Indexador ..> Indice : produz
+    Indexador ..> Documento : cria
+    Buscador --> "1" Indice : consulta
+    PersistenciaIndice ..> Indice : grava / lê
+}
+
+package "br.furb.buscador.ui" #F4EEFB {
+
+    class ConsoleUI {
+        - {static} ARQUIVO_INDICE : File
+        - persistencia : PersistenciaIndice
+        - indice : Indice
+        + executar()
+        - opcaoIndexar()
+        - opcaoBuscar()
+        - opcaoEstatisticas()
+        - carregarIndiceSeExistir()
+    }
+
+    class Main {
+        + {static} main(args : String[])
+    }
+
+    Main ..> ConsoleUI
+    ConsoleUI --> "0..1" Indice
+    ConsoleUI --> "1" PersistenciaIndice
+    ConsoleUI ..> Indexador
+    ConsoleUI ..> Buscador
+    ConsoleUI ..> ExtratorPalavras
+}
+
+@enduml
