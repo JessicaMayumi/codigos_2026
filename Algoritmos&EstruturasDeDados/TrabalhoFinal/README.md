@@ -102,9 +102,9 @@ buscador-arquivos/
 └── src/br/furb/buscador/
     ├── Main.java
     ├── estruturas/               ← estruturas de dados próprias
-    │   ├── No.java
-    │   ├── Lista.java
-    │   ├── EntradaMapa.java
+    │   ├── NoLista.java
+    │   ├── ListaEncadeada.java
+    │   ├── NoMapa.java
     │   └── MapaDispersao.java
     ├── modelo/                   ← entidades de domínio
     │   ├── Documento.java
@@ -130,14 +130,15 @@ Nenhuma estrutura nativa do Java (`ArrayList`, `HashMap`, `LinkedList`, etc.)
 
 | Classe              | O que é                                                                |
 | ------------------- | ---------------------------------------------------------------------- |
-| `No<T>`             | Nó genérico para lista encadeada (valor + referência ao próximo)       |
-| `Lista<T>`          | Lista encadeada simples com cabeça, cauda e tamanho                    |
-| `EntradaMapa<K,V>`  | Par chave-valor armazenado nos baldes do mapa                          |
-| `MapaDispersao<K,V>`| Tabela hash com encadeamento separado e redimensionamento dinâmico     |
+| `NoLista<T>`        | Nó genérico para lista encadeada (info + referência ao próximo)        |
+| `ListaEncadeada<T>` | Lista encadeada simples e genérica; insere sempre no início            |
+| `NoMapa<T>`         | Par chave/valor dos baldes do mapa; `equals` só pela chave             |
+| `MapaDispersao<T>`  | Tabela hash com encadeamento separado e capacidade fixa                |
 
 **Por que não foi usado `Iterator`?**
 A travessia da lista é feita externamente, expondo apenas o nó inicial via
-`Lista.primeiro()`. O cliente percorre com um laço `for (No<T> n = lista.primeiro(); n != null; n = n.getProximo())`,
+`ListaEncadeada.getPrimeiro()`. O cliente percorre com um laço
+`for (NoLista<T> n = lista.getPrimeiro(); n != null; n = n.getProximo())`,
 o que torna o uso do tipo `Iterator` de `java.util` desnecessário e
 demonstra explicitamente o entendimento sobre listas encadeadas.
 
@@ -149,29 +150,32 @@ recurso usado em qualquer implementação de hash table à mão.
 
 ### 3.2. Mapa de dispersão
 
-- **Tratamento de colisões:** encadeamento separado (cada balde é uma `Lista`).
-- **Função de hash:** `hashCode()` da chave + mistura de bits
-  (`h ^= h >>> 16`) para suavizar distribuições ruins, seguido de
-  `% capacidade`.
-- **Fator de carga:** quando ultrapassa **0,75**, o array de baldes é
-  dobrado e todas as entradas são reinseridas (rehash).
-- **Capacidade inicial:** 16 baldes.
+- **Tratamento de colisões:** encadeamento separado (cada balde é uma
+  `ListaEncadeada` de `NoMapa`), exatamente como nas aulas.
+- **Função de hash (chave texto):** `Math.abs(chave.hashCode()) % capacidade`.
+  Usa-se o valor absoluto porque o `hashCode()` do Java pode ser negativo
+  (conforme a Lista de Exercício sobre chave texto).
+- **Capacidade fixa:** 997 baldes (número primo), definida no construtor
+  `MapaDispersao(int)`. Não há redimensionamento — é o modelo visto na
+  disciplina (PDF 16 / Lista 9).
+- **Fator de carga:** apenas calculado (`calcularFatorCarga()` = nº de
+  itens / capacidade) e exibido nas estatísticas; não dispara rehash.
 
 Custos médios (com função de hash bem distribuída):
 
-| Operação    | Custo médio | Pior caso (todas colidem) |
-| ----------- | ----------- | ------------------------- |
-| `colocar`   | O(1)        | O(n)                      |
-| `obter`     | O(1)        | O(n)                      |
-| `contemChave` | O(1)      | O(n)                      |
+| Operação  | Custo médio | Pior caso (todas colidem) |
+| --------- | ----------- | ------------------------- |
+| `inserir` | O(1)        | O(n)                      |
+| `buscar`  | O(1)        | O(n)                      |
+| `remover` | O(1)        | O(n)                      |
 
 ### 3.3. Índice invertido
 
-`Indice` encapsula um `MapaDispersao<String, Lista<Documento>>`. Cada
+`Indice` encapsula um `MapaDispersao<ListaEncadeada<Documento>>`. Cada
 palavra (já normalizada para minúscula) aponta para a lista de documentos
 em que ocorre. A inserção é **idempotente**: mesmo que a palavra apareça
 várias vezes no mesmo arquivo, o documento é registrado uma única vez
-(graças ao `Lista.contem` no `Indice.adicionarOcorrencia`).
+(graças ao `ListaEncadeada.contem` no `Indice.adicionarOcorrencia`).
 
 ### 3.4. Extração de palavras
 
@@ -206,7 +210,7 @@ Vantagens dessa decisão sobre serialização binária Java:
 
 ### 3.6. Busca com múltiplos termos
 
-`Buscador.buscar(Lista<String> termos)`:
+`Buscador.buscar(ListaEncadeada<String> termos)`:
 
 1. Pega a lista de documentos do primeiro termo (cópia).
 2. Para cada termo seguinte, faz a **interseção** com a lista atual.
@@ -257,13 +261,13 @@ campos de texto e `JTextArea`).
 | Apenas palavras com 3+ letras                                                | `ExtratorPalavras.adicionarSeValida`     |
 | Despreza pontuação                                                           | `ExtratorPalavras.extrair`               |
 | Índice via mapa de dispersão                                                 | `MapaDispersao` + `Indice`               |
-| Cada palavra → lista de documentos                                           | `Indice` (mapa de String para Lista)     |
+| Cada palavra → lista de documentos                                           | `Indice` (mapa de String para `ListaEncadeada`) |
 | Índice salvo em disco e recarregado na inicialização                         | `PersistenciaIndice` + `ConsoleUI`       |
 | Busca acontece exclusivamente em memória                                     | `Buscador.buscar`                        |
 | Uma palavra → docs que contêm ela                                            | `Buscador.buscar` (caso de 1 termo)      |
 | Várias palavras → docs que contêm **todas** elas (AND)                       | `Buscador.intersecao`                    |
 | **Não** usa classes de estruturas nativas do Java                            | Pacote `estruturas` próprio              |
-| Reutiliza estruturas implementadas na disciplina                             | `Lista` e `MapaDispersao` próprios       |
+| Reutiliza estruturas implementadas na disciplina                             | `ListaEncadeada` e `MapaDispersao` próprios |
 | Diagrama UML                                                                 | `docs/diagrama-uml.svg`                  |
 
 ---
@@ -271,12 +275,13 @@ campos de texto e `JTextArea`).
 ## 5. Pontos para a entrevista (defesa)
 
 - **"E se duas chaves diferentes caírem no mesmo balde?"**
-  → O balde é uma `Lista` de `EntradaMapa`. Percorremos a lista e
+  → O balde é uma `ListaEncadeada` de `NoMapa`. Percorremos a lista e
   comparamos as chaves com `equals` para distinguir entradas distintas.
 
 - **"E se o índice ficar muito cheio?"**
-  → Quando `tamanho / capacidade > 0,75`, `MapaDispersao.redimensionar`
-  dobra a capacidade e refaz o hash de todas as entradas.
+  → A capacidade é fixa (997, primo), como no modelo da disciplina. Não há
+  rehash: as colisões continuam sendo resolvidas pelas listas encadeadas
+  dos baldes. O `calcularFatorCarga()` mostra o quão cheio o mapa está.
 
 - **"Como o `Indice` evita registrar o mesmo documento duas vezes?"**
   → Em `Indice.adicionarOcorrencia`, antes de adicionar, chamamos
@@ -285,7 +290,7 @@ campos de texto e `JTextArea`).
 - **"Por que a busca AND usa interseção em vez de buscar tudo de novo?"**
   → A lista de documentos do primeiro termo já restringe o espaço.
   Para os demais termos, basta verificar quais daqueles documentos
-  também aparecem na lista do termo seguinte (`Lista.contem`),
+  também aparecem na lista do termo seguinte (`ListaEncadeada.contem`),
   evitando varrer o índice inteiro.
 
 - **"Por que arrays podem, mas `ArrayList` não?"**

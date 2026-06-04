@@ -1,7 +1,7 @@
 package br.furb.buscador.ui;
 
-import br.furb.buscador.estruturas.Lista;
-import br.furb.buscador.estruturas.No;
+import br.furb.buscador.estruturas.ListaEncadeada;
+import br.furb.buscador.estruturas.NoLista;
 import br.furb.buscador.modelo.Documento;
 import br.furb.buscador.modelo.Indice;
 import br.furb.buscador.servico.Indexador;
@@ -241,18 +241,18 @@ public class SwingUI extends JFrame {
 
         long inicio = System.nanoTime();
 
-        Lista<String> palavrasCasadas = new Lista<>();
-        Lista<Documento> docsUnicos = new Lista<>();
+        ListaEncadeada<String> palavrasCasadas = new ListaEncadeada<>();
+        ListaEncadeada<Documento> docsUnicos = new ListaEncadeada<>();
 
-        Lista<String> todasPalavras = indice.getMapa().chaves();
-        for (No<String> n = todasPalavras.primeiro(); n != null; n = n.getProximo()) {
-            String palavra = n.getValor();
+        ListaEncadeada<String> todasPalavras = indice.getMapa().chaves();
+        for (NoLista<String> n = todasPalavras.getPrimeiro(); n != null; n = n.getProximo()) {
+            String palavra = n.getInfo();
             if (palavra.contains(alvo)) {
-                palavrasCasadas.adicionar(palavra);
-                Lista<Documento> docs = indice.documentosCom(palavra);
-                for (No<Documento> d = docs.primeiro(); d != null; d = d.getProximo()) {
-                    if (!docsUnicos.contem(d.getValor())) {
-                        docsUnicos.adicionar(d.getValor());
+                palavrasCasadas.inserir(palavra);
+                ListaEncadeada<Documento> docs = indice.documentosCom(palavra);
+                for (NoLista<Documento> d = docs.getPrimeiro(); d != null; d = d.getProximo()) {
+                    if (!docsUnicos.contem(d.getInfo())) {
+                        docsUnicos.inserir(d.getInfo());
                     }
                 }
             }
@@ -268,14 +268,14 @@ public class SwingUI extends JFrame {
         } else {
             sb.append(palavrasCasadas.tamanho()).append(" palavra(s) com o trecho:\n");
             int i = 1;
-            for (No<String> n = palavrasCasadas.primeiro(); n != null; n = n.getProximo()) {
-                sb.append("  ").append(i++).append(". ").append(n.getValor()).append('\n');
+            for (NoLista<String> n = palavrasCasadas.getPrimeiro(); n != null; n = n.getProximo()) {
+                sb.append("  ").append(i++).append(". ").append(n.getInfo()).append('\n');
             }
             sb.append('\n').append(docsUnicos.tamanho()).append(" documento(s):\n");
             int j = 1;
-            for (No<Documento> n = docsUnicos.primeiro(); n != null; n = n.getProximo()) {
+            for (NoLista<Documento> n = docsUnicos.getPrimeiro(); n != null; n = n.getProximo()) {
                 sb.append("  ").append(j++).append(". ")
-                  .append(n.getValor().getCaminho()).append('\n');
+                  .append(n.getInfo().getCaminho()).append('\n');
             }
         }
         sb.append(String.format("%nBusca executada em %.3f ms%n", (fim - inicio) / 1_000_000.0));
@@ -304,7 +304,7 @@ public class SwingUI extends JFrame {
         } else {
             rotuloStatus.setText(String.format(
                     "Índice carregado em memória: %d palavras únicas (capacidade do mapa: %d).",
-                    indice.totalPalavras(), indice.getMapa().capacidade()));
+                    indice.totalPalavras(), indice.getMapa().getCapacidade()));
         }
     }
 

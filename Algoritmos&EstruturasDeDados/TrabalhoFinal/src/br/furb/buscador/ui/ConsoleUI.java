@@ -1,7 +1,7 @@
 package br.furb.buscador.ui;
 
-import br.furb.buscador.estruturas.Lista;
-import br.furb.buscador.estruturas.No;
+import br.furb.buscador.estruturas.ListaEncadeada;
+import br.furb.buscador.estruturas.NoLista;
 import br.furb.buscador.modelo.Documento;
 import br.furb.buscador.modelo.Indice;
 import br.furb.buscador.servico.Buscador;
@@ -129,7 +129,7 @@ public class ConsoleUI {
 
         // reaproveita o extrator para normalizar os termos da busca,
         // garantindo consistência com a forma como foram indexados
-        Lista<String> termos = ExtratorPalavras.extrair(linha);
+        ListaEncadeada<String> termos = ExtratorPalavras.extrair(linha);
         if (termos.estaVazia()) {
             System.out.println("Nenhum termo válido na consulta (mínimo 3 letras por termo).\n");
             return;
@@ -137,13 +137,13 @@ public class ConsoleUI {
 
         Buscador buscador = new Buscador(indice);
         long inicio = System.nanoTime();
-        Lista<Documento> resultado = buscador.buscar(termos);
+        ListaEncadeada<Documento> resultado = buscador.buscar(termos);
         long fim = System.nanoTime();
 
         System.out.println();
         System.out.println("Termos buscados:");
-        for (No<String> n = termos.primeiro(); n != null; n = n.getProximo()) {
-            System.out.println("  - " + n.getValor());
+        for (NoLista<String> n = termos.getPrimeiro(); n != null; n = n.getProximo()) {
+            System.out.println("  - " + n.getInfo());
         }
         System.out.println();
 
@@ -152,8 +152,8 @@ public class ConsoleUI {
         } else {
             System.out.println(resultado.tamanho() + " documento(s) encontrado(s):");
             int i = 1;
-            for (No<Documento> n = resultado.primeiro(); n != null; n = n.getProximo()) {
-                System.out.println("  " + (i++) + ". " + n.getValor().getCaminho());
+            for (NoLista<Documento> n = resultado.getPrimeiro(); n != null; n = n.getProximo()) {
+                System.out.println("  " + (i++) + ". " + n.getInfo().getCaminho());
             }
         }
         System.out.printf("Busca executada em %.3f ms%n%n", (fim - inicio) / 1_000_000.0);
@@ -165,7 +165,8 @@ public class ConsoleUI {
             return;
         }
         System.out.println("Palavras únicas indexadas: " + indice.totalPalavras());
-        System.out.println("Capacidade interna do mapa: " + indice.getMapa().capacidade());
+        System.out.println("Capacidade interna do mapa: " + indice.getMapa().getCapacidade());
+        System.out.printf("Fator de carga do mapa: %.2f%n", indice.getMapa().calcularFatorCarga());
         if (ARQUIVO_INDICE.exists()) {
             System.out.println("Arquivo do índice: " + ARQUIVO_INDICE.getAbsolutePath()
                     + " (" + ARQUIVO_INDICE.length() + " bytes)");

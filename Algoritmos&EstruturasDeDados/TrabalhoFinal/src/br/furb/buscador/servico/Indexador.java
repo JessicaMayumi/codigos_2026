@@ -1,7 +1,7 @@
 package br.furb.buscador.servico;
 
-import br.furb.buscador.estruturas.Lista;
-import br.furb.buscador.estruturas.No;
+import br.furb.buscador.estruturas.ListaEncadeada;
+import br.furb.buscador.estruturas.NoLista;
 import br.furb.buscador.modelo.Documento;
 import br.furb.buscador.modelo.Indice;
 
@@ -82,9 +82,9 @@ public class Indexador {
                 new InputStreamReader(new FileInputStream(arquivo), StandardCharsets.UTF_8))) {
             String linha;
             while ((linha = leitor.readLine()) != null) {
-                Lista<String> palavras = ExtratorPalavras.extrair(linha);
-                for (No<String> n = palavras.primeiro(); n != null; n = n.getProximo()) {
-                    indice.adicionarOcorrencia(n.getValor(), documento);
+                ListaEncadeada<String> palavras = ExtratorPalavras.extrair(linha);
+                for (NoLista<String> n = palavras.getPrimeiro(); n != null; n = n.getProximo()) {
+                    indice.adicionarOcorrencia(n.getInfo(), documento);
                     palavrasProcessadas++;
                 }
             }

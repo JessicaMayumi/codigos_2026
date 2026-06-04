@@ -10,56 +10,54 @@ skinparam linetype ortho
 
 package "br.furb.buscador.estruturas" #EEF6FF {
 
-    class "No<T>" as No {
+    class "NoLista<T>" as NoLista {
+        - info : T
+        - proximo : NoLista<T>
+        + getInfo() : T
+        + setInfo(v : T)
+        + getProximo() : NoLista<T>
+        + setProximo(n : NoLista<T>)
+    }
+
+    class "ListaEncadeada<T>" as Lista {
+        - primeiro : NoLista<T>
+        - quantidade : int
+        + inserir(v : T)
+        + contem(v : T) : boolean
+        + retirar(v : T) : boolean
+        + estaVazia() : boolean
+        + tamanho() : int
+        + getPrimeiro() : NoLista<T>
+    }
+
+    class "NoMapa<T>" as NoMapa {
+        - chave : String
         - valor : T
-        - proximo : No<T>
+        + getChave() : String
         + getValor() : T
         + setValor(v : T)
-        + getProximo() : No<T>
-        + setProximo(n : No<T>)
+        + equals(o : Object) : boolean
+        + hashCode() : int
     }
 
-    class "Lista<T>" as Lista {
-        - cabeca : No<T>
-        - cauda : No<T>
-        - tamanho : int
-        + adicionar(v : T)
-        + remover(v : T) : boolean
-        + contem(v : T) : boolean
-        + obter(i : int) : T
-        + tamanho() : int
-        + estaVazia() : boolean
-        + primeiro() : No<T>
-        + limpar()
+    class "MapaDispersao<T>" as Mapa {
+        - info : ListaEncadeada<NoMapa<T>>[]
+        - quantidade : int
+        + MapaDispersao(tamanho : int)
+        + calcularHash(chave : String) : int
+        + inserir(chave : String, v : T)
+        + buscar(chave : String) : T
+        + remover(chave : String) : boolean
+        + calcularFatorCarga() : double
+        + getQuantidade() : int
+        + getCapacidade() : int
+        + chaves() : ListaEncadeada<String>
+        + entradas() : ListaEncadeada<NoMapa<T>>
     }
 
-    class "EntradaMapa<K,V>" as Entrada {
-        - chave : K
-        - valor : V
-        + getChave() : K
-        + getValor() : V
-        + setValor(v : V)
-    }
-
-    class "MapaDispersao<K,V>" as Mapa {
-        - {static} CAPACIDADE_INICIAL : int = 16
-        - {static} FATOR_CARGA_MAXIMO : double = 0.75
-        - baldes : Lista<EntradaMapa<K,V>>[]
-        - tamanho : int
-        + colocar(k : K, v : V)
-        + obter(k : K) : V
-        + contemChave(k : K) : boolean
-        + tamanho() : int
-        + capacidade() : int
-        + chaves() : Lista<K>
-        + entradas() : Lista<EntradaMapa<K,V>>
-        - indiceBalde(k : K, cap : int) : int
-        - redimensionar()
-    }
-
-    Lista *-- "0..*" No : cabeca/proximo
-    Mapa *-- "0..*" Lista : baldes (array)
-    Lista ..> Entrada : armazena
+    Lista *-- "0..*" NoLista : primeiro/proximo
+    Mapa *-- "0..*" Lista : info (array)
+    Lista ..> NoMapa : armazena
 }
 
 package "br.furb.buscador.modelo" #F1FBEE {
@@ -74,11 +72,12 @@ package "br.furb.buscador.modelo" #F1FBEE {
     }
 
     class Indice {
-        - mapa : MapaDispersao<String, Lista<Documento>>
+        - {static} CAPACIDADE : int = 997
+        - mapa : MapaDispersao<ListaEncadeada<Documento>>
         + adicionarOcorrencia(palavra : String, doc : Documento)
-        + documentosCom(palavra : String) : Lista<Documento>
+        + documentosCom(palavra : String) : ListaEncadeada<Documento>
         + totalPalavras() : int
-        + getMapa() : MapaDispersao<String, Lista<Documento>>
+        + getMapa() : MapaDispersao<ListaEncadeada<Documento>>
     }
 
     Indice *-- "1" Mapa : usa
@@ -88,14 +87,15 @@ package "br.furb.buscador.modelo" #F1FBEE {
 package "br.furb.buscador.servico" #FFF7E6 {
 
     class ExtratorPalavras <<utility>> {
-        + {static} extrair(texto : String) : Lista<String>
-        - {static} adicionarSeValida(lista : Lista<String>, token : String)
+        + {static} extrair(texto : String) : ListaEncadeada<String>
+        - {static} adicionarSeValida(lista : ListaEncadeada<String>, token : String)
     }
 
     class Indexador {
         - arquivosIndexados : int
         - palavrasProcessadas : int
         + indexar(dir : File) : Indice
+        + indexarEm(dir : File, indice : Indice) : Indice
         + getArquivosIndexados() : int
         + getPalavrasProcessadas() : int
         - percorrer(dir : File, indice : Indice)
@@ -105,9 +105,9 @@ package "br.furb.buscador.servico" #FFF7E6 {
     class Buscador {
         - indice : Indice
         + Buscador(indice : Indice)
-        + buscar(termos : Lista<String>) : Lista<Documento>
-        - copiar(origem : Lista<Documento>) : Lista<Documento>
-        - intersecao(a : Lista<Documento>, b : Lista<Documento>) : Lista<Documento>
+        + buscar(termos : ListaEncadeada<String>) : ListaEncadeada<Documento>
+        - copiar(origem : ListaEncadeada<Documento>) : ListaEncadeada<Documento>
+        - intersecao(a : ListaEncadeada<Documento>, b : ListaEncadeada<Documento>) : ListaEncadeada<Documento>
     }
 
     class PersistenciaIndice {
@@ -137,16 +137,30 @@ package "br.furb.buscador.ui" #F4EEFB {
         - carregarIndiceSeExistir()
     }
 
+    class SwingUI {
+        - {static} ARQUIVO_INDICE : File
+        - persistencia : PersistenciaIndice
+        - indice : Indice
+        + SwingUI()
+        - indexar()
+        - buscar()
+        - carregarIndiceSeExistir()
+    }
+
     class Main {
         + {static} main(args : String[])
     }
 
     Main ..> ConsoleUI
+    Main ..> SwingUI
     ConsoleUI --> "0..1" Indice
     ConsoleUI --> "1" PersistenciaIndice
     ConsoleUI ..> Indexador
     ConsoleUI ..> Buscador
     ConsoleUI ..> ExtratorPalavras
+    SwingUI --> "0..1" Indice
+    SwingUI --> "1" PersistenciaIndice
+    SwingUI ..> Indexador
 }
 
 @enduml

@@ -1,8 +1,8 @@
 package br.furb.buscador.servico;
 
-import br.furb.buscador.estruturas.EntradaMapa;
-import br.furb.buscador.estruturas.Lista;
-import br.furb.buscador.estruturas.No;
+import br.furb.buscador.estruturas.ListaEncadeada;
+import br.furb.buscador.estruturas.NoLista;
+import br.furb.buscador.estruturas.NoMapa;
 import br.furb.buscador.modelo.Documento;
 import br.furb.buscador.modelo.Indice;
 
@@ -50,15 +50,15 @@ public class PersistenciaIndice {
             escritor.write(CABECALHO);
             escritor.newLine();
 
-            Lista<EntradaMapa<String, Lista<Documento>>> entradas = indice.getMapa().entradas();
-            for (No<EntradaMapa<String, Lista<Documento>>> n = entradas.primeiro();
+            ListaEncadeada<NoMapa<ListaEncadeada<Documento>>> entradas = indice.getMapa().entradas();
+            for (NoLista<NoMapa<ListaEncadeada<Documento>>> n = entradas.getPrimeiro();
                  n != null;
                  n = n.getProximo()) {
-                EntradaMapa<String, Lista<Documento>> entrada = n.getValor();
+                NoMapa<ListaEncadeada<Documento>> entrada = n.getInfo();
                 StringBuilder linha = new StringBuilder();
                 linha.append(entrada.getChave());
-                for (No<Documento> d = entrada.getValor().primeiro(); d != null; d = d.getProximo()) {
-                    linha.append(SEPARADOR).append(d.getValor().getCaminho());
+                for (NoLista<Documento> d = entrada.getValor().getPrimeiro(); d != null; d = d.getProximo()) {
+                    linha.append(SEPARADOR).append(d.getInfo().getCaminho());
                 }
                 escritor.write(linha.toString());
                 escritor.newLine();
