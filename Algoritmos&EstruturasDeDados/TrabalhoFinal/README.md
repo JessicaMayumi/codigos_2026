@@ -12,9 +12,18 @@ Pelo IntelliJ: abrir a pasta e rodar o `Main`.
 
 Pelo terminal:
 
+Linux / Mac:
+
 ```bash
 ./run.sh             # abre a tela
 ./run.sh --console   # abre no modo texto
+```
+
+Windows:
+
+```bat
+run.bat              :: abre a tela
+run.bat --console    :: abre no modo texto
 ```
 
 Sem argumentos abre a janela (Swing); com `--console` vai pro menu de texto.
