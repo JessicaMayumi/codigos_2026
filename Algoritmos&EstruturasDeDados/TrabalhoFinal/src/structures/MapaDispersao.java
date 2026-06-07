@@ -1,11 +1,7 @@
-package br.furb.buscador.estruturas;
+package structures;
 
-// Mapa de dispersao (tabela hash) com chave de busca do tipo texto.
-// Trata colisoes por enderecamento separado: cada posicao do vetor
-// guarda uma lista encadeada de NoMapa. A capacidade e fixa e definida
-// no construtor (de preferencia um numero primo), como visto em aula.
 public class MapaDispersao<T> {
-
+    // Tabela hash com chave de texto. Cada posicao do vetor guarda uma lista encadeada de NoMapa pra tratar colisoes (enderecamento separado).
     private final ListaEncadeada<NoMapa<T>>[] info;
     private int quantidade;
 
@@ -15,8 +11,7 @@ public class MapaDispersao<T> {
         this.quantidade = 0;
     }
 
-    // Compacta a chave de texto para um indice do vetor.
-    // O hashCode do Java pode ser negativo, por isso usamos o valor absoluto.
+    // hashCode do Java pode vir negativo, por isso o Math.abs.
     public int calcularHash(String chave) {
         return Math.abs(chave.hashCode()) % info.length;
     }
@@ -39,7 +34,6 @@ public class MapaDispersao<T> {
         quantidade++;
     }
 
-    // Busca o valor associado a chave. Retorna null se nao encontrar.
     public T buscar(String chave) {
         int indice = calcularHash(chave);
         if (info[indice] == null) {
@@ -55,7 +49,6 @@ public class MapaDispersao<T> {
         return null;
     }
 
-    // Remove a entrada com a chave informada. Retorna true se removeu.
     public boolean remover(String chave) {
         int indice = calcularHash(chave);
         if (info[indice] == null) {
@@ -68,7 +61,6 @@ public class MapaDispersao<T> {
         return removeu;
     }
 
-    // Fator de carga = quantidade de itens / tamanho do vetor.
     public double calcularFatorCarga() {
         return (double) quantidade / info.length;
     }
@@ -81,7 +73,6 @@ public class MapaDispersao<T> {
         return info.length;
     }
 
-    // Devolve todas as chaves do mapa (ordem qualquer).
     public ListaEncadeada<String> chaves() {
         ListaEncadeada<String> resultado = new ListaEncadeada<>();
         for (int i = 0; i < info.length; i++) {
@@ -97,7 +88,6 @@ public class MapaDispersao<T> {
         return resultado;
     }
 
-    // Devolve todas as entradas (chave/valor) do mapa, util para salvar em disco.
     public ListaEncadeada<NoMapa<T>> entradas() {
         ListaEncadeada<NoMapa<T>> resultado = new ListaEncadeada<>();
         for (int i = 0; i < info.length; i++) {

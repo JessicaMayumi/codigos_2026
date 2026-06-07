@@ -1,9 +1,6 @@
-package br.furb.buscador.estruturas;
+package structures;
 
-// Lista encadeada simples e generica, como vista na disciplina.
-// Guarda uma referencia para o primeiro no e insere sempre no inicio.
 public class ListaEncadeada<T> {
-
     private NoLista<T> primeiro;
     private int quantidade;
 
@@ -12,7 +9,6 @@ public class ListaEncadeada<T> {
         this.quantidade = 0;
     }
 
-    // Insere um novo valor no inicio da lista.
     public void inserir(T info) {
         NoLista<T> novo = new NoLista<>(info);
         novo.setProximo(primeiro);
@@ -20,7 +16,6 @@ public class ListaEncadeada<T> {
         quantidade++;
     }
 
-    // Procura um valor na lista comparando com equals.
     public boolean contem(T valor) {
         NoLista<T> p = primeiro;
         while (p != null) {
@@ -32,7 +27,6 @@ public class ListaEncadeada<T> {
         return false;
     }
 
-    // Retira a primeira ocorrencia do valor. Retorna true se removeu.
     public boolean retirar(T valor) {
         NoLista<T> p = primeiro;
         NoLista<T> anterior = null;

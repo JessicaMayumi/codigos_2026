@@ -1,15 +1,6 @@
-package br.furb.buscador.modelo;
+package models;
 
-/**
- * Representa um documento de texto indexado pela aplicação.
- *
- * Dois documentos são considerados iguais quando possuem o mesmo
- * caminho absoluto. Essa noção de igualdade é usada pelo índice
- * para evitar inserir o mesmo documento duas vezes na lista de
- * ocorrências de uma palavra.
- */
 public class Documento {
-
     private final String caminho;
 
     public Documento(String caminho) {
@@ -25,6 +16,7 @@ public class Documento {
 
     @Override
     public boolean equals(Object obj) {
+        // Compara documentos pelo caminho. Assim o indice nao guarda o mesmo arquivo repetido na lista de uma palavra.
         if (this == obj) return true;
         if (!(obj instanceof Documento)) return false;
         Documento outro = (Documento) obj;

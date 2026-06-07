@@ -1,9 +1,7 @@
-package br.furb.buscador.estruturas;
+package structures;
 
-// No do mapa de dispersao: guarda o par chave/valor.
-// A identidade e por valor, usando apenas a chave (chave de busca).
+// guarda o par chave/valor. A identidade e por valor, usando apenas a chave (chave de busca)
 public class NoMapa<T> {
-
     private final String chave;
     private T valor;
 

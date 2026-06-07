@@ -1,28 +1,12 @@
-package br.furb.buscador;
-
-import br.furb.buscador.ui.ConsoleUI;
-import br.furb.buscador.ui.SwingUI;
+import ui.ConsoleUI;
+import ui.SwingUI;
 
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import java.awt.GraphicsEnvironment;
 
-/**
- * Ponto de entrada da aplicação.
- *
- * <p>Sem argumentos: tenta abrir a interface gráfica (Swing).
- * Se o ambiente não tiver display (modo headless, ex.: SSH sem
- * X11), faz fallback automático para a interface de console.</p>
- *
- * <p>Flags reconhecidas:
- * <ul>
- *   <li>{@code --console} ou {@code -c} — força modo console</li>
- *   <li>{@code --gui} ou {@code -g}      — força modo gráfico</li>
- * </ul>
- * </p>
- */
+// Sem argumentos abre a tela (Swing); se nao tiver tela, ou com --console/-c, cai no modo texto. --gui/-g forca a tela.
 public class Main {
-
     public static void main(String[] args) {
         boolean forcaConsole = temFlag(args, "--console", "-c");
         boolean forcaGui     = temFlag(args, "--gui", "-g");
@@ -34,7 +18,6 @@ public class Main {
             try {
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             } catch (Exception ignorado) {
-                // se o L&F do sistema falhar, mantém o padrão Metal
             }
             SwingUtilities.invokeLater(() -> new SwingUI().setVisible(true));
         } else {

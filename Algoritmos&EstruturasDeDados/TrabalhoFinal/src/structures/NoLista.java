@@ -1,8 +1,6 @@
-package br.furb.buscador.estruturas;
+package structures;
 
-// No usado na lista encadeada: guarda a informacao e aponta para o proximo no.
 public class NoLista<T> {
-
     private T info;
     private NoLista<T> proximo;
 

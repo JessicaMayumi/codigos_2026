@@ -1,13 +1,8 @@
-package br.furb.buscador.servico;
+package services;
 
-import br.furb.buscador.estruturas.ListaEncadeada;
+import structures.ListaEncadeada;
 
-// Quebra um texto em palavras validas seguindo as regras do enunciado:
-// - nao distingue maiuscula/minuscula (tudo vira minusculo);
-// - pontuacao e separador (so letra ou digito faz parte da palavra);
-// - so entram palavras com 3 ou mais letras (tokens so de numeros caem fora).
 public final class ExtratorPalavras {
-
     private ExtratorPalavras() {
     }
 
@@ -33,7 +28,6 @@ public final class ExtratorPalavras {
         return palavras;
     }
 
-    // Conta quantas letras o token tem e so guarda se tiver pelo menos 3.
     private static void adicionarSeValida(ListaEncadeada<String> lista, String token) {
         int letras = 0;
         for (int i = 0; i < token.length(); i++) {

@@ -1,29 +1,23 @@
-package br.furb.buscador.ui;
+package ui;
 
-import br.furb.buscador.estruturas.ListaEncadeada;
-import br.furb.buscador.estruturas.NoLista;
-import br.furb.buscador.modelo.Documento;
-import br.furb.buscador.modelo.Indice;
-import br.furb.buscador.servico.Buscador;
-import br.furb.buscador.servico.ExtratorPalavras;
-import br.furb.buscador.servico.Indexador;
-import br.furb.buscador.servico.PersistenciaIndice;
+import structures.ListaEncadeada;
+import structures.NoLista;
+import models.Documento;
+import models.Indice;
+import services.Buscador;
+import services.ExtratorPalavras;
+import services.Indexador;
+import services.PersistenciaIndice;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
-/**
- * Interface de linha de comando para o buscador.
- *
- * Oferece um menu com as operações de indexação, busca e
- * estatísticas. Ao iniciar, tenta carregar um índice previamente
- * salvo em disco (arquivo {@code indice.dat} no diretório corrente).
- */
+// Interface de texto (menu) para o buscador. Oferece indexar, buscar e ver estatisticas.
+// Ao iniciar, tenta carregar um indice ja salvo no arquivo "indice.dat".
 public class ConsoleUI {
-
-    private static final File ARQUIVO_INDICE = new File("indice.dat");
+    private static final File arquivoIndice = new File("indice.dat");
 
     private final BufferedReader entrada;
     private final PersistenciaIndice persistencia;
@@ -80,12 +74,12 @@ public class ConsoleUI {
     }
 
     private void carregarIndiceSeExistir() {
-        if (!ARQUIVO_INDICE.exists()) {
+        if (!arquivoIndice.exists()) {
             System.out.println("Nenhum índice encontrado em disco. Use a opção 1 para indexar.\n");
             return;
         }
         try {
-            indice = persistencia.carregar(ARQUIVO_INDICE);
+            indice = persistencia.carregar(arquivoIndice);
             System.out.println("Índice carregado do disco: "
                     + indice.totalPalavras() + " palavras únicas.\n");
         } catch (Exception e) {
@@ -104,7 +98,7 @@ public class ConsoleUI {
         Indice novo = indexador.indexar(dir);
         long fim = System.currentTimeMillis();
 
-        persistencia.salvar(novo, ARQUIVO_INDICE);
+        persistencia.salvar(novo, arquivoIndice);
         this.indice = novo;
 
         System.out.println();
@@ -112,7 +106,7 @@ public class ConsoleUI {
         System.out.println("Arquivos lidos        : " + indexador.getArquivosIndexados());
         System.out.println("Ocorrências processadas: " + indexador.getPalavrasProcessadas());
         System.out.println("Palavras únicas        : " + novo.totalPalavras());
-        System.out.println("Índice salvo em        : " + ARQUIVO_INDICE.getAbsolutePath() + "\n");
+        System.out.println("Índice salvo em        : " + arquivoIndice.getAbsolutePath() + "\n");
     }
 
     private void opcaoBuscar() throws Exception {
@@ -127,8 +121,7 @@ public class ConsoleUI {
             return;
         }
 
-        // reaproveita o extrator para normalizar os termos da busca,
-        // garantindo consistência com a forma como foram indexados
+        // passa pelo extrator pra deixar os termos igual na indexacao
         ListaEncadeada<String> termos = ExtratorPalavras.extrair(linha);
         if (termos.estaVazia()) {
             System.out.println("Nenhum termo válido na consulta (mínimo 3 letras por termo).\n");
@@ -167,9 +160,9 @@ public class ConsoleUI {
         System.out.println("Palavras únicas indexadas: " + indice.totalPalavras());
         System.out.println("Capacidade interna do mapa: " + indice.getMapa().getCapacidade());
         System.out.printf("Fator de carga do mapa: %.2f%n", indice.getMapa().calcularFatorCarga());
-        if (ARQUIVO_INDICE.exists()) {
-            System.out.println("Arquivo do índice: " + ARQUIVO_INDICE.getAbsolutePath()
-                    + " (" + ARQUIVO_INDICE.length() + " bytes)");
+        if (arquivoIndice.exists()) {
+            System.out.println("Arquivo do índice: " + arquivoIndice.getAbsolutePath()
+                    + " (" + arquivoIndice.length() + " bytes)");
         } else {
             System.out.println("Arquivo do índice ainda não foi salvo em disco.");
         }

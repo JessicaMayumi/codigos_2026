@@ -1,14 +1,12 @@
-package br.furb.buscador.servico;
+package services;
 
-import br.furb.buscador.estruturas.ListaEncadeada;
-import br.furb.buscador.estruturas.NoLista;
-import br.furb.buscador.modelo.Documento;
-import br.furb.buscador.modelo.Indice;
+import structures.ListaEncadeada;
+import structures.NoLista;
+import models.Documento;
+import models.Indice;
 
-// Faz a busca no indice que ja esta em memoria.
-// Com varias palavras, retorna so os documentos que contem TODAS elas (E).
+// Faz a busca no indice que ja esta em memoria. Com varias palavras, retorna so os documentos que contem TODAS elas (E).
 public class Buscador {
-
     private final Indice indice;
 
     public Buscador(Indice indice) {

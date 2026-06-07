@@ -1,10 +1,10 @@
-package br.furb.buscador.servico;
+package services;
 
-import br.furb.buscador.estruturas.ListaEncadeada;
-import br.furb.buscador.estruturas.NoLista;
-import br.furb.buscador.estruturas.NoMapa;
-import br.furb.buscador.modelo.Documento;
-import br.furb.buscador.modelo.Indice;
+import structures.ListaEncadeada;
+import structures.NoLista;
+import structures.NoMapa;
+import models.Documento;
+import models.Indice;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -16,30 +16,13 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 
-/**
- * Salva e carrega o {@link Indice} em um arquivo texto simples,
- * permitindo reuso entre execuções sem reindexar os arquivos.
- *
- * <p><b>Formato do arquivo de índice:</b></p>
- * <pre>
- *   INDICE_BUSCADOR_V1
- *   palavra1\tcaminho1\tcaminho2\t...
- *   palavra2\tcaminho1\t...
- * </pre>
- *
- * <p>Cada linha representa uma palavra seguida da lista de caminhos
- * absolutos dos documentos em que ela ocorre, separados por
- * tabulação. O arquivo é lido e escrito em UTF-8.</p>
- */
 public class PersistenciaIndice {
+    // Salva/carrega o indice num arquivo de texto pra nao reindexar toda vez.
+    // Formato (UTF-8): 1a linha o cabecalho, depois uma palavra por linha seguida dos caminhos dos arquivos, tudo separado por TAB
 
-    private static final String CABECALHO = "INDICE_BUSCADOR_V1";
-    private static final String SEPARADOR = "\t";
+    private static final String cabecalhoEsperado = "INDICE_BUSCADOR_V1";
+    private static final String separador = "\t";
 
-    /**
-     * Grava o índice no arquivo indicado, criando os diretórios pai
-     * se necessário.
-     */
     public void salvar(Indice indice, File arquivo) throws IOException {
         File pai = arquivo.getParentFile();
         if (pai != null && !pai.exists()) {
@@ -47,7 +30,7 @@ public class PersistenciaIndice {
         }
         try (BufferedWriter escritor = new BufferedWriter(
                 new OutputStreamWriter(new FileOutputStream(arquivo), StandardCharsets.UTF_8))) {
-            escritor.write(CABECALHO);
+            escritor.write(cabecalhoEsperado);
             escritor.newLine();
 
             ListaEncadeada<NoMapa<ListaEncadeada<Documento>>> entradas = indice.getMapa().entradas();
@@ -58,7 +41,7 @@ public class PersistenciaIndice {
                 StringBuilder linha = new StringBuilder();
                 linha.append(entrada.getChave());
                 for (NoLista<Documento> d = entrada.getValor().getPrimeiro(); d != null; d = d.getProximo()) {
-                    linha.append(SEPARADOR).append(d.getInfo().getCaminho());
+                    linha.append(separador).append(d.getInfo().getCaminho());
                 }
                 escritor.write(linha.toString());
                 escritor.newLine();
@@ -66,25 +49,19 @@ public class PersistenciaIndice {
         }
     }
 
-    /**
-     * Lê um índice previamente gravado e devolve um novo {@link Indice}
-     * já com todas as palavras e documentos carregados.
-     *
-     * @throws IOException se o arquivo não tiver o cabeçalho esperado
-     *                     ou estiver corrompido
-     */
+    // Lanca IOException se o arquivo nao tiver o cabecalho certo.
     public Indice carregar(File arquivo) throws IOException {
         Indice indice = new Indice();
         try (BufferedReader leitor = new BufferedReader(
                 new InputStreamReader(new FileInputStream(arquivo), StandardCharsets.UTF_8))) {
             String cabecalho = leitor.readLine();
-            if (cabecalho == null || !cabecalho.equals(CABECALHO)) {
+            if (cabecalho == null || !cabecalho.equals(cabecalhoEsperado)) {
                 throw new IOException("Arquivo de índice inválido ou corrompido: " + arquivo);
             }
             String linha;
             while ((linha = leitor.readLine()) != null) {
                 if (linha.isEmpty()) continue;
-                String[] partes = linha.split(SEPARADOR, -1);
+                String[] partes = linha.split(separador, -1);
                 if (partes.length < 2) continue;
                 String palavra = partes[0];
                 for (int i = 1; i < partes.length; i++) {

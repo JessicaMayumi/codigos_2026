@@ -1,9 +1,9 @@
-package br.furb.buscador.servico;
+package services;
 
-import br.furb.buscador.estruturas.ListaEncadeada;
-import br.furb.buscador.estruturas.NoLista;
-import br.furb.buscador.modelo.Documento;
-import br.furb.buscador.modelo.Indice;
+import structures.ListaEncadeada;
+import structures.NoLista;
+import models.Documento;
+import models.Indice;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -12,17 +12,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
-/**
- * Indexador responsável por percorrer recursivamente um diretório
- * e construir o {@link Indice} invertido a partir de todos os
- * arquivos com extensão {@code .txt} encontrados.
- *
- * Mantém estatísticas simples (quantos arquivos foram lidos e
- * quantas ocorrências de palavras foram processadas) para que a UI
- * possa exibir feedback ao usuário ao final da indexação.
- */
+// Percorre um diretorio (e subpastas) e monta o indice invertido a partir dos arquivos .txt. Vai contando arquivos e palavras pra UI mostrar no fim
 public class Indexador {
-
     private int arquivosIndexados;
     private int palavrasProcessadas;
 
@@ -30,12 +21,7 @@ public class Indexador {
         return indexarEm(caminho, new Indice());
     }
 
-    /**
-     * Adiciona o conteúdo do caminho informado ao índice existente,
-     * permitindo acumular múltiplas operações de indexação no mesmo
-     * {@link Indice}. Os contadores são reiniciados para refletir
-     * apenas o que foi processado nesta chamada.
-     */
+    // Adiciona o conteudo do caminho a um indice ja existente. Os contadores zeram para contar so o que foi feito nesta chamada.
     public Indice indexarEm(File caminho, Indice indice) throws IOException {
         if (caminho == null || !caminho.exists()) {
             throw new IllegalArgumentException("Caminho inválido: " + caminho);
@@ -48,7 +34,7 @@ public class Indexador {
         palavrasProcessadas = 0;
         if (caminho.isDirectory()) {
             percorrer(caminho, indice);
-        } else if (caminho.isFile() && caminho.getName().toLowerCase().endsWith(".txt")) {
+        } else if (ehTxt(caminho)) {
             indexarArquivo(caminho, indice);
         } else {
             throw new IllegalArgumentException(
@@ -57,25 +43,22 @@ public class Indexador {
         return indice;
     }
 
-    /**
-     * Percorre recursivamente o diretório procurando arquivos .txt.
-     */
+    private static boolean ehTxt(File arquivo) {
+        return arquivo.isFile() && arquivo.getName().toLowerCase().endsWith(".txt");
+    }
+
     private void percorrer(File diretorio, Indice indice) throws IOException {
         File[] filhos = diretorio.listFiles();
         if (filhos == null) return;
         for (File filho : filhos) {
             if (filho.isDirectory()) {
                 percorrer(filho, indice);
-            } else if (filho.isFile() && filho.getName().toLowerCase().endsWith(".txt")) {
+            } else if (ehTxt(filho)) {
                 indexarArquivo(filho, indice);
             }
         }
     }
 
-    /**
-     * Lê o arquivo linha a linha (em UTF-8) e adiciona cada palavra
-     * válida ao índice associada ao documento atual.
-     */
     private void indexarArquivo(File arquivo, Indice indice) throws IOException {
         Documento documento = new Documento(arquivo.getAbsolutePath());
         try (BufferedReader leitor = new BufferedReader(

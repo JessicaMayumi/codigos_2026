@@ -1,11 +1,11 @@
-package br.furb.buscador.ui;
+package ui;
 
-import br.furb.buscador.estruturas.ListaEncadeada;
-import br.furb.buscador.estruturas.NoLista;
-import br.furb.buscador.modelo.Documento;
-import br.furb.buscador.modelo.Indice;
-import br.furb.buscador.servico.Indexador;
-import br.furb.buscador.servico.PersistenciaIndice;
+import structures.ListaEncadeada;
+import structures.NoLista;
+import models.Documento;
+import models.Indice;
+import services.Indexador;
+import services.PersistenciaIndice;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -29,26 +29,10 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.io.File;
 
-/**
- * Interface gráfica do buscador, construída com Swing.
- *
- * <p>Reaproveita exatamente os mesmos serviços usados pela
- * {@link ConsoleUI} (Indexador, Buscador, PersistenciaIndice e
- * ExtratorPalavras), reforçando que a separação entre UI e regra
- * de negócio permite trocar a apresentação sem alterar o núcleo.</p>
- *
- * <p>A indexação é executada em uma {@link SwingWorker} para não
- * bloquear o Event Dispatch Thread e manter a janela responsiva
- * mesmo em diretórios grandes.</p>
- *
- * <p>Não é utilizada nenhuma classe nativa de estrutura de dados
- * do Java: a tela trabalha apenas com componentes Swing
- * (botões, campos de texto e área de texto rolável) e
- * com as estruturas próprias do pacote {@code estruturas}.</p>
- */
+// Tela do buscador com Swing. Usa os mesmos servicos da ConsoleUI, so muda a apresentacao.
+// A indexacao roda numa SwingWorker pra nao travar a janela.
 public class SwingUI extends JFrame {
-
-    private static final File ARQUIVO_INDICE = new File("indice.dat");
+    private static final File arquivoIndice = new File("indice.dat");
 
     private final PersistenciaIndice persistencia;
     private Indice indice;
@@ -75,7 +59,6 @@ public class SwingUI extends JFrame {
         JPanel painel = new JPanel(new BorderLayout(8, 8));
         painel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        // Topo: indexação seguida da busca, empilhadas verticalmente
         JPanel topo = new JPanel();
         topo.setLayout(new BoxLayout(topo, BoxLayout.Y_AXIS));
         topo.add(criarPainelIndexacao());
@@ -83,7 +66,6 @@ public class SwingUI extends JFrame {
         topo.add(criarPainelBusca());
         painel.add(topo, BorderLayout.NORTH);
 
-        // Centro: resultados em área de texto rolável
         areaResultado = new JTextArea();
         areaResultado.setEditable(false);
         areaResultado.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 13));
@@ -92,7 +74,6 @@ public class SwingUI extends JFrame {
         scroll.setBorder(BorderFactory.createTitledBorder("Resultados"));
         painel.add(scroll, BorderLayout.CENTER);
 
-        // Rodapé: barra de status
         rotuloStatus = new JLabel("Pronto.");
         rotuloStatus.setBorder(new EmptyBorder(4, 6, 4, 6));
         painel.add(rotuloStatus, BorderLayout.SOUTH);
@@ -154,7 +135,13 @@ public class SwingUI extends JFrame {
             }
         }
         if (chooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
-            campoDiretorio.setText(chooser.getSelectedFile().getAbsolutePath());
+            File escolhido = chooser.getSelectedFile();
+            // Se entrou na pasta por duplo-clique, o seletor repete o nome (pasta/pasta).
+            // Nesse caso o caminho nao existe, entao uso a pasta atual do seletor.
+            if (escolhido == null || !escolhido.exists()) {
+                escolhido = chooser.getCurrentDirectory();
+            }
+            campoDiretorio.setText(escolhido.getAbsolutePath());
         }
     }
 
@@ -182,7 +169,7 @@ public class SwingUI extends JFrame {
         rotuloStatus.setText("Indexando, aguarde…");
         areaResultado.setText("");
 
-        // Executa fora da EDT para não congelar a janela.
+        // roda fora da EDT pra nao travar a janela
         SwingWorker<Indice, Void> worker = new SwingWorker<Indice, Void>() {
             final Indexador indexador = new Indexador();
             long ms;
@@ -192,7 +179,7 @@ public class SwingUI extends JFrame {
                 long inicio = System.currentTimeMillis();
                 Indice idx = (indice != null) ? indice : new Indice();
                 indexador.indexarEm(alvo, idx);
-                persistencia.salvar(idx, ARQUIVO_INDICE);
+                persistencia.salvar(idx, arquivoIndice);
                 ms = System.currentTimeMillis() - inicio;
                 return idx;
             }
@@ -211,7 +198,7 @@ public class SwingUI extends JFrame {
                             indexador.getArquivosIndexados(),
                             indexador.getPalavrasProcessadas(),
                             indice.totalPalavras(),
-                            ARQUIVO_INDICE.getAbsolutePath()));
+                            arquivoIndice.getAbsolutePath()));
                     atualizarStatus();
                 } catch (Exception ex) {
                     Throwable causa = ex.getCause() != null ? ex.getCause() : ex;
@@ -285,12 +272,12 @@ public class SwingUI extends JFrame {
     }
 
     private void carregarIndiceSeExistir() {
-        if (!ARQUIVO_INDICE.exists()) {
+        if (!arquivoIndice.exists()) {
             rotuloStatus.setText("Nenhum índice em disco — escolha um diretório para indexar.");
             return;
         }
         try {
-            indice = persistencia.carregar(ARQUIVO_INDICE);
+            indice = persistencia.carregar(arquivoIndice);
             atualizarStatus();
         } catch (Exception e) {
             rotuloStatus.setText("Falha ao carregar o índice: " + e.getMessage());
