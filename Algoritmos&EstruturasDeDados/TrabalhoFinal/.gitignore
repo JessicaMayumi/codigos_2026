@@ -5,11 +5,6 @@ out/
 # Indice gerado em tempo de execucao
 indice.dat
 
-# IntelliJ: versiona a config compartilhavel (modules.xml, .iml,
-# runConfigurations e misc.xml) para o projeto abrir/importar em
-# qualquer maquina. Ignora so o que e especifico do usuario.
-.idea/workspace.xml
-.idea/usage.statistics.xml
-.idea/shelf/
-.idea/tasks.xml
-.idea/httpRequests/
+# IntelliJ
+.idea/
+*.iml
