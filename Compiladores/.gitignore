@@ -1,3 +1,2 @@
-# Gerados pelo build.sh
+# Gerado pelo build.sh (o dist/interface.jar é versionado, faz parte da entrega)
 build/
-dist/
