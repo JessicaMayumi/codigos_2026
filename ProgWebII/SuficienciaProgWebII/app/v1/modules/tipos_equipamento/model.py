@@ -2,7 +2,6 @@ from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from app.v1.core.database import Base
 
-
 class TipoEquipamento(Base):
     __tablename__ = "tipos_equipamento"
 
