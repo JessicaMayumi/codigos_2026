@@ -14,8 +14,9 @@ app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
     description="API REST de equipamentos - Prova de Suficiência de Programação Web II. "
-                "Registre um usuário em /auth/registrar, faça login em /auth/login e use o "
-                "token no botão Authorize para liberar o DELETE de equipamentos.",
+                "Leitura é pública; criar, alterar e remover exigem token. "
+                "Faça login em /auth/login e informe usuário e senha no botão Authorize "
+                "(deixe client_id e client_secret em branco).",
     openapi_tags=[
         {"name": "Equipamentos", "description": "CRUD de equipamentos."},
         {"name": "Tipos de Equipamento", "description": "Cadastro dos tipos usados pelos equipamentos."},
