@@ -7,34 +7,19 @@ from app.v1.modules.tipos_equipamento.schemas import TipoEquipamentoCreate, Tipo
 router = APIRouter(prefix="/tipos-equipamento", tags=["Tipos de Equipamento"])
 
 
-@router.get(
-    "",
-    response_model=list[TipoEquipamentoOut],
-    summary="Lista os tipos de equipamento",
-)
+@router.get("", response_model=list[TipoEquipamentoOut], summary="Lista os tipos de equipamento")
 def listar_tipos(db: Session = Depends(get_db)):
     return TipoEquipamentoService(db).listar()
 
 
-@router.get(
-    "/{tipo_id}",
-    response_model=TipoEquipamentoOut,
-    summary="Busca um tipo pelo id",
-    responses={404: {"description": "Tipo de equipamento não encontrado"}},
-)
+@router.get("/{tipo_id}", response_model=TipoEquipamentoOut, summary="Busca um tipo pelo id",
+            responses={404: {"description": "Tipo de equipamento nao encontrado"}})
 def buscar_tipo(tipo_id: int, db: Session = Depends(get_db)):
     return TipoEquipamentoService(db).buscar_por_id(tipo_id)
 
 
-@router.post(
-    "",
-    response_model=TipoEquipamentoOut,
-    status_code=status.HTTP_201_CREATED,
-    summary="Cadastra um novo tipo de equipamento",
-    responses={
-        201: {"description": "Tipo criado"},
-        422: {"description": "Dados inválidos"},
-    },
-)
+@router.post("", response_model=TipoEquipamentoOut, status_code=status.HTTP_201_CREATED,
+             summary="Cadastra um novo tipo de equipamento",
+             responses={422: {"description": "Dados invalidos"}})
 def criar_tipo(dados: TipoEquipamentoCreate, db: Session = Depends(get_db)):
     return TipoEquipamentoService(db).criar(dados)

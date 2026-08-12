@@ -13,17 +13,13 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.APP_VERSION,
-    description=(
-        "API REST de equipamentos — Prova de Suficiência de Programação Web II.\n\n"
-        "**Autenticação:** registre um usuário em `/auth/registrar`, faça login em "
-        "`/auth/login` e use o token no botão **Authorize** para liberar as rotas "
-        "protegidas.\n\n"
-        "**Rota protegida:** `DELETE /equipamentos/{id}`."
-    ),
+    description="API REST de equipamentos - Prova de Suficiencia de Programacao Web II. "
+    "Registre um usuario em `/auth/registrar`, faca login em `/auth/login` e use o token "
+    "no botao Authorize para liberar o DELETE de equipamentos.",
     openapi_tags=[
         {"name": "Equipamentos", "description": "CRUD de equipamentos."},
         {"name": "Tipos de Equipamento", "description": "Cadastro dos tipos usados pelos equipamentos."},
-        {"name": "Autenticação", "description": "Registro de usuário e geração do token JWT."},
+        {"name": "Autenticacao", "description": "Registro de usuario e geracao do token JWT."},
     ],
 )
 
