@@ -18,9 +18,6 @@ class AuthService:
     def login(self, username: str, senha: str) -> str:
         usuario = self.repo.buscar_por_username(username)
         if not usuario or not verify_password(senha, usuario.senha_hash):
-            raise HTTPException(
-                status.HTTP_401_UNAUTHORIZED,
-                "Usuário ou senha inválidos",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
+            raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Usuário ou senha inválidos",
+                                headers={"WWW-Authenticate": "Bearer"})
         return create_access_token({"sub": usuario.username})

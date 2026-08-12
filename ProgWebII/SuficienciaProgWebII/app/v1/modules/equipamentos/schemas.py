@@ -4,8 +4,8 @@ from app.v1.modules.tipos_equipamento.schemas import TipoEquipamentoOut
 
 
 class TipoRefIn(BaseModel):
-    # o nome, se vier no corpo, e ignorado: a fonte da verdade e a tabela de tipos
-    id: int = Field(..., description="Id de um tipo ja cadastrado.", examples=[3])
+    # o nome, se vier no corpo, é ignorado: a fonte da verdade é a tabela de tipos
+    id: int = Field(..., description="Id de um tipo já cadastrado.", examples=[3])
 
 
 class EquipamentoCreate(BaseModel):

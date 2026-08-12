@@ -13,13 +13,13 @@ def listar_tipos(db: Session = Depends(get_db)):
 
 
 @router.get("/{tipo_id}", response_model=TipoEquipamentoOut, summary="Busca um tipo pelo id",
-            responses={404: {"description": "Tipo de equipamento nao encontrado"}})
+            responses={404: {"description": "Tipo de equipamento não encontrado"}})
 def buscar_tipo(tipo_id: int, db: Session = Depends(get_db)):
     return TipoEquipamentoService(db).buscar_por_id(tipo_id)
 
 
 @router.post("", response_model=TipoEquipamentoOut, status_code=status.HTTP_201_CREATED,
              summary="Cadastra um novo tipo de equipamento",
-             responses={422: {"description": "Dados invalidos"}})
+             responses={422: {"description": "Dados inválidos"}})
 def criar_tipo(dados: TipoEquipamentoCreate, db: Session = Depends(get_db)):
     return TipoEquipamentoService(db).criar(dados)

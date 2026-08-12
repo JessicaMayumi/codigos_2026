@@ -24,16 +24,13 @@ def create_access_token(data: dict) -> str:
 
 
 def get_current_username(token: str = Depends(oauth2_scheme)) -> str:
-    credentials_exception = HTTPException(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        detail="Token inválido ou expirado",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
+    erro = HTTPException(status.HTTP_401_UNAUTHORIZED, "Token inválido ou expirado",
+                         headers={"WWW-Authenticate": "Bearer"})
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         username = payload.get("sub")
         if username is None:
-            raise credentials_exception
+            raise erro
         return username
     except JWTError:
-        raise credentials_exception
+        raise erro

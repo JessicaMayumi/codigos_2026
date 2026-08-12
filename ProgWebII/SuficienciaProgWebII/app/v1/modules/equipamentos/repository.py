@@ -11,12 +11,8 @@ class EquipamentoRepository:
         return self.db.query(Equipamento).options(joinedload(Equipamento.tipo)).all()
 
     def buscar_por_id(self, equipamento_id: int):
-        return (
-            self.db.query(Equipamento)
-            .options(joinedload(Equipamento.tipo))
-            .filter(Equipamento.id == equipamento_id)
-            .first()
-        )
+        q = self.db.query(Equipamento).options(joinedload(Equipamento.tipo))
+        return q.filter(Equipamento.id == equipamento_id).first()
 
     def criar(self, nome: str, tipo_id: int):
         equipamento = Equipamento(nome=nome, tipo_id=tipo_id)
