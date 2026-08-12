@@ -18,7 +18,9 @@ class EquipamentoCreate(BaseModel):
 
 
 class EquipamentoUpdate(BaseModel):
-    model_config = ConfigDict(json_schema_extra={"example": {"nome": "Imp HP 2100"}})
+    model_config = ConfigDict(
+        json_schema_extra={"example": {"nome": "Imp HP", "tipo": {"id": 3, "nome": "Impressora"}}}
+    )
 
     nome: Optional[str] = Field(None, min_length=2, max_length=120, description="Omita para manter o valor atual.")
     tipo: Optional[TipoRefIn] = Field(None, description="Omita para manter o valor atual.")
