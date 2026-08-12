@@ -2,17 +2,39 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class UsuarioCreate(BaseModel):
-    username: str = Field(..., min_length=3, max_length=60)
-    senha: str = Field(..., min_length=4, max_length=100)
+    model_config = ConfigDict(
+        json_schema_extra={"example": {"username": "admin", "senha": "1234"}}
+    )
+
+    username: str = Field(
+        ...,
+        min_length=3,
+        max_length=60,
+        description="Nome de usuário. Precisa ser único.",
+        examples=["admin"],
+    )
+    senha: str = Field(
+        ...,
+        min_length=4,
+        max_length=100,
+        description="Senha em texto puro. É convertida em hash bcrypt antes de gravar.",
+        examples=["1234"],
+    )
 
 
 class UsuarioOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
-    username: str
+    id: int = Field(..., description="Identificador gerado pelo banco.", examples=[1])
+    username: str = Field(..., description="Nome de usuário.", examples=["admin"])
 
 
 class TokenOut(BaseModel):
-    access_token: str
-    token_type: str = "bearer"
+    access_token: str = Field(
+        ...,
+        description="Token JWT. Envie no header `Authorization: Bearer <token>`.",
+        examples=["eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."],
+    )
+    token_type: str = Field(
+        "bearer", description="Tipo do token, sempre `bearer`.", examples=["bearer"]
+    )
