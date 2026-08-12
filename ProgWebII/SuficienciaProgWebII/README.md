@@ -10,11 +10,8 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
-python seed.py
 python run.py
 ```
-
-O `seed.py` cria dados de exemplo e o usuário `admin` com senha `1234`.
 
 A API sobe em `http://localhost:8080/RestAPIFurb/`.
 
