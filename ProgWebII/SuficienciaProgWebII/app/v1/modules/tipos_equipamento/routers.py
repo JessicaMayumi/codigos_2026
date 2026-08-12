@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from app.v1.core.database import get_db
+from app.v1.core.security import get_current_username
 from app.v1.modules.tipos_equipamento.services import TipoEquipamentoService
 from app.v1.modules.tipos_equipamento.schemas import TipoEquipamentoCreate, TipoEquipamentoOut
 
@@ -19,7 +20,9 @@ def buscar_tipo(tipo_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("", response_model=TipoEquipamentoOut, status_code=status.HTTP_201_CREATED,
-             summary="Cadastra um novo tipo de equipamento",
-             responses={422: {"description": "Dados inválidos"}})
-def criar_tipo(dados: TipoEquipamentoCreate, db: Session = Depends(get_db)):
+             summary="Cadastra um novo tipo de equipamento (requer autenticação)",
+             responses={401: {"description": "Token ausente, inválido ou expirado"},
+                        422: {"description": "Dados inválidos"}})
+def criar_tipo(dados: TipoEquipamentoCreate, db: Session = Depends(get_db),
+               username: str = Depends(get_current_username)):
     return TipoEquipamentoService(db).criar(dados)

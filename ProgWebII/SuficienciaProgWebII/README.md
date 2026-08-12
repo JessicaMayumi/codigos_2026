@@ -10,8 +10,11 @@ python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
+python seed.py
 python run.py
 ```
+
+O `seed.py` cria dados de exemplo e o usuário `admin` com senha `1234`.
 
 A API sobe em `http://localhost:8080/RestAPIFurb/`.
 
@@ -41,16 +44,19 @@ app/v1/
 
 ## Rotas principais
 
+Leitura é pública, escrita exige token JWT.
+
 - `GET /RestAPIFurb/equipamentos`
 - `GET /RestAPIFurb/equipamentos/{id}`
-- `POST /RestAPIFurb/equipamentos`
-- `PUT /RestAPIFurb/equipamentos/{id}`
-- `DELETE /RestAPIFurb/equipamentos/{id}` **(requer token JWT)**
-- `GET/POST /RestAPIFurb/tipos-equipamento`
+- `POST /RestAPIFurb/equipamentos` **(token)**
+- `PUT /RestAPIFurb/equipamentos/{id}` **(token)**
+- `DELETE /RestAPIFurb/equipamentos/{id}` **(token)**
+- `GET /RestAPIFurb/tipos-equipamento`
+- `POST /RestAPIFurb/tipos-equipamento` **(token)**
 - `POST /RestAPIFurb/auth/registrar`
 - `POST /RestAPIFurb/auth/login` (retorna o token JWT)
 
-## Testando a rota protegida
+## Testando as rotas protegidas
 
 ```bash
 curl -X POST http://localhost:8080/RestAPIFurb/auth/registrar \

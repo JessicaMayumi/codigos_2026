@@ -26,18 +26,23 @@ def buscar_equipamento(equipamento_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("", response_model=EquipamentoOut, status_code=status.HTTP_201_CREATED,
-             summary="Cadastra um novo equipamento",
+             summary="Cadastra um novo equipamento (requer autenticação)",
              responses={400: {"description": "Tipo de equipamento inválido"},
+                        401: {"description": "Token ausente, inválido ou expirado"},
                         422: {"description": "Dados inválidos"}})
-def criar_equipamento(dados: EquipamentoCreate, db: Session = Depends(get_db)):
+def criar_equipamento(dados: EquipamentoCreate, db: Session = Depends(get_db),
+                      username: str = Depends(get_current_username)):
     return EquipamentoService(db).criar(dados)
 
 
-@router.put("/{equipamento_id}", response_model=EquipamentoOut, summary="Atualiza um equipamento",
+@router.put("/{equipamento_id}", response_model=EquipamentoOut,
+            summary="Atualiza um equipamento (requer autenticação)",
             description="Aceita atualização parcial: envie somente os campos que deseja alterar.",
             responses={400: {"description": "Tipo de equipamento inválido"},
+                       401: {"description": "Token ausente, inválido ou expirado"},
                        404: {"description": "Equipamento não encontrado"}})
-def atualizar_equipamento(equipamento_id: int, dados: EquipamentoUpdate, db: Session = Depends(get_db)):
+def atualizar_equipamento(equipamento_id: int, dados: EquipamentoUpdate, db: Session = Depends(get_db),
+                          username: str = Depends(get_current_username)):
     return EquipamentoService(db).atualizar(equipamento_id, dados)
 
 
