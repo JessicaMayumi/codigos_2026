@@ -1,0 +1,4 @@
+# Gerados pelo Maven / NetBeans
+target/
+nbproject/private/
+nbactions.xml
