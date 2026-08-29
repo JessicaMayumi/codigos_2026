@@ -1,4 +1,6 @@
-# Gerados pelo Maven / NetBeans
-target/
+# Gerados pelo Maven / NetBeans (o .jar da entrega fica versionado)
+target/classes/
+target/maven-archiver/
+target/maven-status/
 nbproject/private/
 nbactions.xml
