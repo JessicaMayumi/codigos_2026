@@ -29,7 +29,7 @@ public final class ArquivoTexto {
     // grava com quebra de linha do Windows para o arquivo abrir certo no Notepad
     public static void gravar(File arquivo, String texto) throws IOException {
         String comQuebrasDoWindows = texto.replace(QUEBRA_DO_WINDOWS, "\n").replace("\n", QUEBRA_DO_WINDOWS);
-        Files.writeString(arquivo.toPath(), comQuebrasDoWindows, StandardCharsets.UTF_8);
+        Files.write(arquivo.toPath(), comQuebrasDoWindows.getBytes(StandardCharsets.UTF_8));
     }
 
     private static String decodificar(byte[] bytes) {
