@@ -1,6 +1,9 @@
 package furb.compiladores.gui;
 
 import furb.compiladores.io.ArquivoTexto;
+import furb.compiladores.lexico.LexicalError;
+import furb.compiladores.lexico.Lexico;
+import furb.compiladores.lexico.Token;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.io.File;
@@ -125,7 +128,42 @@ public class TelaPrincipal extends JFrame {
     }
 
     private void compilar() {
-        areaMensagens.mostrar(MENSAGEM_COMPILACAO);
+        //areaMensagens.mostrar(MENSAGEM_COMPILACAO);
+
+        String codigo = this.editor.getTexto();
+
+        Lexico lexico = new Lexico();
+        lexico.setInput(codigo);
+        
+        try {
+           Token t = null;
+           while ( (t = lexico.nextToken()) != null ) {
+                System.out.println(t.getLexeme()); 
+                areaMensagens.mostrar(t.getLexeme());
+                
+          
+                // só escreve o lexema, necessário escrever t.getId, t.getPosition()
+         
+                // t.getId () - retorna o identificador da classe (ver Constants.java) 
+                // necessário adaptar, pois deve ser apresentada a classe por extenso
+          
+               // t.getPosition () - retorna a posição inicial do lexema no editor 
+               // necessário adaptar para mostrar a linha	
+     
+                // esse código apresenta os tokens enquanto não ocorrer erro
+                // no entanto, os tokens devem ser apresentados SÓ se não ocorrer erro,
+                // necessário adaptar para atender o que foi solicitado		   
+           }
+        }
+        catch ( LexicalError e ) {  // tratamento de erros
+           System.out.println(e.getMessage() + " em " + e.getPosition());
+      
+           // e.getMessage() - retorna a mensagem de erro de SCANNER_ERRO (ver ScannerConstants.java)
+           // necessário adaptar conforme o enunciado da parte 2
+         
+           // e.getPosition() - retorna a posição inicial do erro 
+           // necessário adaptar para mostrar a linha  
+         } 
     }
 
     private void equipe() {
