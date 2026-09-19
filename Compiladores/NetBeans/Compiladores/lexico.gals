@@ -1,0 +1,63 @@
+#Options
+GenerateScanner = true
+GenerateParser = false
+Language = Java
+ScannerName = Lexico
+Package = furb.compiladores.lexico
+ScannerCaseSensitive = true
+ScannerTable = Compact
+Input = String
+#RegularDefinitions
+dig: [0-9]
+dig_1: [1-9]
+maiu: [A-Z]
+minu: [a-z]
+letra: {maiu}|{minu}
+comentario_bloco: !#[^#]*#!
+
+#Tokens
+p_res:! {minu}({minu}|{maiu}{minu})*
+
+and = p_res: "and"
+false = p_res: "false"
+if = p_res: "if"
+in = p_res: "in"
+isfalsedo = p_res: "isFalseDo"
+istruedo = p_res: "isTrueDo"
+module = p_res: "module"
+not = p_res: "not"
+or = p_res: "or"
+out = p_res: "out"
+true = p_res: "true"
+while = p_res: "while"
+
+id_int: i_{letra}({letra}|{dig})*
+id_float: f_{letra}({letra}|{dig})*
+id_string: s_{letra}({letra}|{dig})*
+id_bool: b_{letra}({letra}|{dig})*
+
+c_int: {dig}+
+c_float: {dig}+,{dig}+
+c_string: \"[^\n\"\\]*\"
+
+","
+":"
+";"
+"["
+"]"
+"("
+")"
+"{"
+"}"
+"+"
+"-"
+"*"
+"/"
+"<-"
+"="
+"<>"
+"<"
+">"
+
+:[\n\s\t]
+:!{comentario_bloco}

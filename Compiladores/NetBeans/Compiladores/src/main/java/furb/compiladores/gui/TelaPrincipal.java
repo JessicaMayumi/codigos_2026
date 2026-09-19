@@ -9,6 +9,8 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -24,6 +26,9 @@ public class TelaPrincipal extends JFrame {
         "Ruan Gustavo Molinari"
     };
 
+    private static final String FORMATO_LINHA = "%-11s%-27s%s%n";
+    private static final String RECUO_SUCESSO = "           ";
+
     private static final String MENSAGEM_COMPILACAO =
         "compilação de programas ainda não foi implementada";
 
@@ -32,47 +37,6 @@ public class TelaPrincipal extends JFrame {
     private static final int ALTURA_INICIAL_EDITOR = 590;
     private static final int ALTURA_INICIAL_MENSAGENS = 120;
     
-    private static final java.util.Map<Integer, String> NOMES_CLASSES = new java.util.HashMap<>();
-    static {
-        NOMES_CLASSES.put(Constants.t_p_res, "p_res");
-        NOMES_CLASSES.put(Constants.t_id_int, "id_int");
-        NOMES_CLASSES.put(Constants.t_id_float, "id_float");
-        NOMES_CLASSES.put(Constants.t_id_string, "id_string");
-        NOMES_CLASSES.put(Constants.t_id_bool, "id_bool");
-        NOMES_CLASSES.put(Constants.t_c_int, "c_int");
-        NOMES_CLASSES.put(Constants.t_c_float, "c_float");
-        NOMES_CLASSES.put(Constants.t_c_string, "c_string");
-        NOMES_CLASSES.put(Constants.t_and, "and");
-        NOMES_CLASSES.put(Constants.t_false, "false");
-        NOMES_CLASSES.put(Constants.t_if, "if");
-        NOMES_CLASSES.put(Constants.t_in, "in");
-        NOMES_CLASSES.put(Constants.t_isfalsedo, "isfalsedo");
-        NOMES_CLASSES.put(Constants.t_istruedo, "istruedo");
-        NOMES_CLASSES.put(Constants.t_module, "module");
-        NOMES_CLASSES.put(Constants.t_not, "not");
-        NOMES_CLASSES.put(Constants.t_or, "or");
-        NOMES_CLASSES.put(Constants.t_out, "out");
-        NOMES_CLASSES.put(Constants.t_true, "true");
-        NOMES_CLASSES.put(Constants.t_while, "while");
-        NOMES_CLASSES.put(Constants.t_TOKEN_22, ",");
-        NOMES_CLASSES.put(Constants.t_TOKEN_23, ":");
-        NOMES_CLASSES.put(Constants.t_TOKEN_24, ";");
-        NOMES_CLASSES.put(Constants.t_TOKEN_25, "[");
-        NOMES_CLASSES.put(Constants.t_TOKEN_26, "]");
-        NOMES_CLASSES.put(Constants.t_TOKEN_27, "(");
-        NOMES_CLASSES.put(Constants.t_TOKEN_28, ")");
-        NOMES_CLASSES.put(Constants.t_TOKEN_29, "{");
-        NOMES_CLASSES.put(Constants.t_TOKEN_30, "}");
-        NOMES_CLASSES.put(Constants.t_TOKEN_31, "+");
-        NOMES_CLASSES.put(Constants.t_TOKEN_32, "-");
-        NOMES_CLASSES.put(Constants.t_TOKEN_33, "*");
-        NOMES_CLASSES.put(Constants.t_TOKEN_34, "/");
-        NOMES_CLASSES.put(Constants.t_TOKEN_35, "<-");
-        NOMES_CLASSES.put(Constants.t_TOKEN_36, "=");
-        NOMES_CLASSES.put(Constants.t_TOKEN_37, "<");
-        NOMES_CLASSES.put(Constants.t_TOKEN_38, ">");
-        NOMES_CLASSES.put(Constants.t_TOKEN_39, "<>");
-    }
 
     private final Editor editor = new Editor();
     private final AreaMensagens areaMensagens = new AreaMensagens();
@@ -177,31 +141,84 @@ public class TelaPrincipal extends JFrame {
         Lexico lexico = new Lexico();
         lexico.setInput(codigo);
 
-        java.util.List<Token> tokens = new java.util.ArrayList<>();
-
+        List<Token> tokens = new ArrayList<>();
         try {
-            Token t;
-            while ((t = lexico.nextToken()) != null) {
-                tokens.add(t);
+            Token token;
+            while ((token = lexico.nextToken()) != null) {
+                if (token.getId() == Constants.t_p_res) {
+                    // segue o padrao de palavra reservada, mas nao e uma delas
+                    mostrarErro(codigo, token.getPosition(),
+                            token.getLexeme() + " palavra reservada inválida");
+                    return;
+                }
+                tokens.add(token);
             }
-
-            StringBuilder resultado = new StringBuilder();
-            for (Token token : tokens) {
-                int linha = calcularLinha(codigo, token.getPosition());
-                String classe = obterNomeClasse(token.getId());
-                resultado.append(String.format("linha: %d - classe: %s - lexema: %s%n",
-                        linha, classe, token.getLexeme()));
-            }
-            resultado.append("programa compilado com sucesso");
-            areaMensagens.mostrar(resultado.toString());
-
         } catch (LexicalError e) {
-            int linha = calcularLinha(codigo, e.getPosition());
-            areaMensagens.mostrar(String.format("Erro na linha %d - %s", linha, e.getMessage()));
+            mostrarErro(codigo, e.getPosition(), descreverErro(codigo, e));
+            return;
         }
+        mostrarTokens(codigo, tokens);
     }
 
-    private int calcularLinha(String codigo, int posicao) {
+    private void mostrarTokens(String codigo, List<Token> tokens) {
+        StringBuilder saida = new StringBuilder();
+        if (!tokens.isEmpty()) {
+            saida.append(String.format(FORMATO_LINHA, "linha", "classe", "lexema"));
+            for (Token token : tokens) {
+                saida.append(String.format(FORMATO_LINHA,
+                        String.valueOf(linhaDe(codigo, token.getPosition())),
+                        classeDe(token.getId()),
+                        token.getLexeme()));
+            }
+            saida.append(String.format("%n%n"));
+            saida.append(RECUO_SUCESSO);
+        }
+        saida.append("programa compilado com sucesso");
+        areaMensagens.mostrar(saida.toString());
+    }
+
+    private void mostrarErro(String codigo, int posicao, String descricao) {
+        areaMensagens.mostrar("linha " + linhaDe(codigo, posicao) + ": " + descricao);
+    }
+
+    private static String descreverErro(String codigo, LexicalError erro) {
+        String mensagem = erro.getMessage();
+        int posicao = erro.getPosition();
+        if (mensagem.contains("id_")) {
+            return "identificador inválido";
+        }
+        if (mensagem.contains("c_string")) {
+            return "constante_string inválida";
+        }
+        if (mensagem.contains("<ignorar>")) {
+            return "comentário inválido ou não finalizado";
+        }
+        if (mensagem.contains("p_res")) {
+            return palavraEm(codigo, posicao) + " palavra reservada inválida";
+        }
+        return simboloEm(codigo, posicao) + " símbolo inválido";
+    }
+
+    private static String classeDe(int id) {
+        if (id >= Constants.t_TOKEN_22) {
+            return "símbolo especial";
+        }
+        if (id == Constants.t_c_int) {
+            return "constante_int";
+        }
+        if (id == Constants.t_c_float) {
+            return "constante_float";
+        }
+        if (id == Constants.t_c_string) {
+            return "constante_string";
+        }
+        if (id >= Constants.t_id_int && id <= Constants.t_id_bool) {
+            return "identificador";
+        }
+        return "palavra reservada";
+    }
+
+    private static int linhaDe(String codigo, int posicao) {
         int linha = 1;
         for (int i = 0; i < posicao && i < codigo.length(); i++) {
             if (codigo.charAt(i) == '\n') {
@@ -211,9 +228,16 @@ public class TelaPrincipal extends JFrame {
         return linha;
     }
 
+    private static String palavraEm(String codigo, int posicao) {
+        int fim = posicao;
+        while (fim < codigo.length() && Character.isLetter(codigo.charAt(fim))) {
+            fim++;
+        }
+        return codigo.substring(posicao, fim);
+    }
 
-    private String obterNomeClasse(int id) {
-        return NOMES_CLASSES.getOrDefault(id, "desconhecido(" + id + ")");
+    private static String simboloEm(String codigo, int posicao) {
+        return posicao < codigo.length() ? String.valueOf(codigo.charAt(posicao)) : "";
     }
 
     private void equipe() {

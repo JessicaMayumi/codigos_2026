@@ -22,6 +22,7 @@ class AreaMensagens extends JScrollPane {
     // troca o conteúdo, para ficar visível só a mensagem do último botão acionado
     void mostrar(String mensagem) {
         area.setText(mensagem);
+        area.setCaretPosition(0);   // volta ao topo, para o cabecalho ficar visivel
     }
 
     void limpar() {
