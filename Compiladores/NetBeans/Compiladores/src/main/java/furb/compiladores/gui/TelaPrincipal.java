@@ -1,6 +1,7 @@
 package furb.compiladores.gui;
 
 import furb.compiladores.io.ArquivoTexto;
+import furb.compiladores.lexico.Constants;
 import furb.compiladores.lexico.LexicalError;
 import furb.compiladores.lexico.Lexico;
 import furb.compiladores.lexico.Token;
@@ -30,6 +31,48 @@ public class TelaPrincipal extends JFrame {
     private static final int ALTURA_JANELA = 800;
     private static final int ALTURA_INICIAL_EDITOR = 590;
     private static final int ALTURA_INICIAL_MENSAGENS = 120;
+    
+    private static final java.util.Map<Integer, String> NOMES_CLASSES = new java.util.HashMap<>();
+    static {
+        NOMES_CLASSES.put(Constants.t_p_res, "p_res");
+        NOMES_CLASSES.put(Constants.t_id_int, "id_int");
+        NOMES_CLASSES.put(Constants.t_id_float, "id_float");
+        NOMES_CLASSES.put(Constants.t_id_string, "id_string");
+        NOMES_CLASSES.put(Constants.t_id_bool, "id_bool");
+        NOMES_CLASSES.put(Constants.t_c_int, "c_int");
+        NOMES_CLASSES.put(Constants.t_c_float, "c_float");
+        NOMES_CLASSES.put(Constants.t_c_string, "c_string");
+        NOMES_CLASSES.put(Constants.t_and, "and");
+        NOMES_CLASSES.put(Constants.t_false, "false");
+        NOMES_CLASSES.put(Constants.t_if, "if");
+        NOMES_CLASSES.put(Constants.t_in, "in");
+        NOMES_CLASSES.put(Constants.t_isfalsedo, "isfalsedo");
+        NOMES_CLASSES.put(Constants.t_istruedo, "istruedo");
+        NOMES_CLASSES.put(Constants.t_module, "module");
+        NOMES_CLASSES.put(Constants.t_not, "not");
+        NOMES_CLASSES.put(Constants.t_or, "or");
+        NOMES_CLASSES.put(Constants.t_out, "out");
+        NOMES_CLASSES.put(Constants.t_true, "true");
+        NOMES_CLASSES.put(Constants.t_while, "while");
+        NOMES_CLASSES.put(Constants.t_TOKEN_22, ",");
+        NOMES_CLASSES.put(Constants.t_TOKEN_23, ":");
+        NOMES_CLASSES.put(Constants.t_TOKEN_24, ";");
+        NOMES_CLASSES.put(Constants.t_TOKEN_25, "[");
+        NOMES_CLASSES.put(Constants.t_TOKEN_26, "]");
+        NOMES_CLASSES.put(Constants.t_TOKEN_27, "(");
+        NOMES_CLASSES.put(Constants.t_TOKEN_28, ")");
+        NOMES_CLASSES.put(Constants.t_TOKEN_29, "{");
+        NOMES_CLASSES.put(Constants.t_TOKEN_30, "}");
+        NOMES_CLASSES.put(Constants.t_TOKEN_31, "+");
+        NOMES_CLASSES.put(Constants.t_TOKEN_32, "-");
+        NOMES_CLASSES.put(Constants.t_TOKEN_33, "*");
+        NOMES_CLASSES.put(Constants.t_TOKEN_34, "/");
+        NOMES_CLASSES.put(Constants.t_TOKEN_35, "<-");
+        NOMES_CLASSES.put(Constants.t_TOKEN_36, "=");
+        NOMES_CLASSES.put(Constants.t_TOKEN_37, "<");
+        NOMES_CLASSES.put(Constants.t_TOKEN_38, ">");
+        NOMES_CLASSES.put(Constants.t_TOKEN_39, "<>");
+    }
 
     private final Editor editor = new Editor();
     private final AreaMensagens areaMensagens = new AreaMensagens();
@@ -128,42 +171,49 @@ public class TelaPrincipal extends JFrame {
     }
 
     private void compilar() {
-        //areaMensagens.mostrar(MENSAGEM_COMPILACAO);
-
-        String codigo = this.editor.getTexto();
+        areaMensagens.limpar();
+        String codigo = editor.getTexto();
 
         Lexico lexico = new Lexico();
         lexico.setInput(codigo);
-        
+
+        java.util.List<Token> tokens = new java.util.ArrayList<>();
+
         try {
-           Token t = null;
-           while ( (t = lexico.nextToken()) != null ) {
-                System.out.println(t.getLexeme()); 
-                areaMensagens.mostrar(t.getLexeme());
-                
-          
-                // só escreve o lexema, necessário escrever t.getId, t.getPosition()
-         
-                // t.getId () - retorna o identificador da classe (ver Constants.java) 
-                // necessário adaptar, pois deve ser apresentada a classe por extenso
-          
-               // t.getPosition () - retorna a posição inicial do lexema no editor 
-               // necessário adaptar para mostrar a linha	
-     
-                // esse código apresenta os tokens enquanto não ocorrer erro
-                // no entanto, os tokens devem ser apresentados SÓ se não ocorrer erro,
-                // necessário adaptar para atender o que foi solicitado		   
-           }
+            Token t;
+            while ((t = lexico.nextToken()) != null) {
+                tokens.add(t);
+            }
+
+            StringBuilder resultado = new StringBuilder();
+            for (Token token : tokens) {
+                int linha = calcularLinha(codigo, token.getPosition());
+                String classe = obterNomeClasse(token.getId());
+                resultado.append(String.format("linha: %d - classe: %s - lexema: %s%n",
+                        linha, classe, token.getLexeme()));
+            }
+            resultado.append("programa compilado com sucesso");
+            areaMensagens.mostrar(resultado.toString());
+
+        } catch (LexicalError e) {
+            int linha = calcularLinha(codigo, e.getPosition());
+            areaMensagens.mostrar(String.format("Erro na linha %d - %s", linha, e.getMessage()));
         }
-        catch ( LexicalError e ) {  // tratamento de erros
-           System.out.println(e.getMessage() + " em " + e.getPosition());
-      
-           // e.getMessage() - retorna a mensagem de erro de SCANNER_ERRO (ver ScannerConstants.java)
-           // necessário adaptar conforme o enunciado da parte 2
-         
-           // e.getPosition() - retorna a posição inicial do erro 
-           // necessário adaptar para mostrar a linha  
-         } 
+    }
+
+    private int calcularLinha(String codigo, int posicao) {
+        int linha = 1;
+        for (int i = 0; i < posicao && i < codigo.length(); i++) {
+            if (codigo.charAt(i) == '\n') {
+                linha++;
+            }
+        }
+        return linha;
+    }
+
+
+    private String obterNomeClasse(int id) {
+        return NOMES_CLASSES.getOrDefault(id, "desconhecido(" + id + ")");
     }
 
     private void equipe() {

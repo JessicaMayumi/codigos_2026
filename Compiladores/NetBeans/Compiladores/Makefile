@@ -20,7 +20,7 @@ build: $(JAR)
 $(JAR):
 	$(MVN) clean package -DskipTests
 
-run: build
+run: clean build
 	java -jar $(JAR)
 
 clean:
