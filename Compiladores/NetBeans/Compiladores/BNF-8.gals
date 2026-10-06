@@ -27,9 +27,9 @@ id_string:! s_{letra}({letra}|{dig})*
 
 id_bool:! b_{letra}({letra}|{dig})*
 
-c_int:! dig+
+c_int:! {dig}+
 
-c_float:! dig+,dig+
+c_float:! {dig}+,{dig}+
 
 c_string:! \"[^\n\"\\]*\"
 
@@ -75,25 +75,42 @@ while = p_res: "while"
 <dec_vars>
 <lista_vars>
 <lista_vars_aux>
+<lista_vars_aux_2>
 <vetor_aux>
 <lista_cmd>
+<lista_cmd_2>
 <cmd>
 <exp_opcional>
 <cmd_atribuicao>
 <cmd_entrada>
 <cmd_saida>
 <cmd_selecao>
+<cmd_selecao_2>
 <false_opcional>
 <true_opcional>
 <is_true>
 <is_false>
 <cmd_repeticao>
+<cmd_repeticao_2>
 <identificador>
 <expressao>
 <lista_identificadores>
+<lista_identificadores_2>
 <lista_expressoes>
+<lista_expressoes_2>
 
-
+<termo_logico>
+<relacional>
+<relacional_>
+<expressao_>
+<operador_relacional>
+<aritmetica>
+<aritmetica_>
+<termo_aritmetico>
+<termo_aritmetico_>
+<fator>
+<identificador_expressao>
+<vetor>
 #Grammar
 <def_module> ::= module <dec_vars> "{" <lista_cmd> "}" ;
 
@@ -101,26 +118,83 @@ while = p_res: "while"
 
 <dec_vars> ::= <lista_vars> ;
 
-<lista_vars> ::= î | <lista_vars_aux> ; 
-<lista_vars_aux> ::= <identificador> <vetor_aux> | <identificador> <vetor_aux> "," <lista_vars_aux> ;
+<lista_vars> ::= î | <lista_vars_aux> ;
+
+// regras com não determinismo
+// <lista_vars_aux> ::= <identificador> <vetor_aux> | <identificador> <vetor_aux> "," <lista_vars_aux> ;
+
+//regras sem não determinismo
+<lista_vars_aux> ::= <identificador> <vetor_aux> <lista_vars_aux_2> ;
+<lista_vars_aux_2> ::= î | "," <lista_vars_aux> ;
 <vetor_aux> ::= "[" c_int "]" | î ;
 
 <cmd> ::= <cmd_atribuicao> | <cmd_entrada> | <cmd_saida> | <cmd_selecao> | <cmd_repeticao> ;
-<lista_cmd> ::= <cmd> | <cmd> <lista_cmd> ; 
+
+// regras com não determinismo
+// <lista_cmd> ::= <cmd> | <cmd> <lista_cmd> ;
+
+//regras sem não determinismo
+<lista_cmd> ::= <cmd> <lista_cmd_2>;
+<lista_cmd_2> ::= î | <lista_cmd> ;
 
 
 <exp_opcional> ::= "[" <expressao> "]" | î ;
 <cmd_atribuicao> ::= <identificador> <exp_opcional> "<-" <expressao> ;
 <cmd_entrada> ::= in "(" <lista_identificadores> ")" ;
 <cmd_saida> ::= out "(" <lista_expressoes> ")" ;
-<cmd_selecao> ::= if "(" <expressao> ")" <is_true> <false_opcional> |if "(" <expressao> ")" <is_false> <true_opcional> ;
+
+// regras com não determinismo
+// <cmd_selecao> ::= if "(" <expressao> ")" <is_true> <false_opcional> |if "(" <expressao> ")" <is_false> <true_opcional> ;
+
+//regras sem não determinismo
+<cmd_selecao> ::= if "(" <expressao> ")" <cmd_selecao_2> ;
+<cmd_selecao_2> ::= <is_true> <false_opcional> | <is_false> <true_opcional> ;
 <is_true> ::= istruedo "{" <lista_cmd> "}" ;
 <is_false> ::= isfalsedo "{" <lista_cmd> "}" ;
 <false_opcional> ::= î | <is_false> ;
 <true_opcional> ::= î | <is_true> ;
-<cmd_repeticao> ::= while "(" <expressao> ")" <is_true> | while "(" <expressao> ")" <is_false> ;
- 
 
-<lista_identificadores> ::= <identificador> <exp_opcional> | <identificador> <exp_opcional> "," <lista_identificadores> ;
-<lista_expressoes> ::= <expressao> | <expressao> "," <lista_expressoes> ; 
+//regras com não determinismo
+// <cmd_repeticao> ::= while "(" <expressao> ")" <is_true> | while "(" <expressao> ")" <is_false> ;
+<cmd_repeticao> ::= while "(" <expressao> ")" <cmd_repeticao_2> ;
+<cmd_repeticao_2> ::= <is_true> | <is_false> ;
 
+// regras com não determinismo
+// <lista_identificadores> ::= <identificador> <exp_opcional> | <identificador> <exp_opcional> "," <lista_identificadores> ;
+
+//regras sem não determinismo
+<lista_identificadores> ::= <identificador> <exp_opcional> <lista_identificadores_2> ;
+<lista_identificadores_2> ::= "," <lista_identificadores> | î ;
+
+// regras com não determinismo
+// <lista_expressoes> ::= <expressao> | <expressao> "," <lista_expressoes> ;
+
+//regras sem não determinismo
+<lista_expressoes> ::= <expressao> <lista_expressoes_2> ;
+<lista_expressoes_2> ::= î | "," <lista_expressoes> ;
+
+<expressao> ::= <termo_logico> <expressao_> ;
+<expressao_> ::= î | and <termo_logico> <expressao_> | or <termo_logico> <expressao_> ;
+<termo_logico> ::= <relacional> | true | false | not <termo_logico> ;
+
+<relacional> ::= <aritmetica> <relacional_> ;
+<relacional_>  ::= î | <operador_relacional> <aritmetica> ;
+<operador_relacional>::= "=" | "<>" | "<" | ">" ;
+
+<aritmetica> ::= <termo_aritmetico> <aritmetica_> ;
+<aritmetica_> ::= î | "+" <termo_aritmetico> <aritmetica_> |
+			"-" <termo_aritmetico> <aritmetica_> ;
+
+<termo_aritmetico> ::= <fator> <termo_aritmetico_> ;
+<termo_aritmetico_> ::= î | "*" <fator> <termo_aritmetico_> | "/" <fator> <termo_aritmetico_> ;
+
+<fator>  ::= <identificador_expressao> <vetor> |
+		c_int |
+		c_float |
+		c_string |
+		"(" <expressao> ")" |
+		"+" <fator> |
+		"-" <fator> ;
+
+<identificador_expressao>::= id_int | id_float | id_string | id_bool;
+<vetor> ::= î | "[" <expressao> "]" ;
