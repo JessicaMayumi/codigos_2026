@@ -1,0 +1,126 @@
+#Options
+GenerateScanner = true
+GenerateParser = true
+Language = Java
+ScannerName = Lexico
+ParserName = Sintatico
+SemanticName = Semantico
+ScannerCaseSensitive = true
+ScannerTable = Compact
+Input = String
+Parser = LL
+#RegularDefinitions
+dig: [0-9]
+dig_1: [1-9]
+maiu: [A-Z]
+minu: [a-z]
+letra: {maiu}|{minu}
+comentario_bloco: !#[^#!]*#!
+#Tokens
+p_res:! {minu}({minu}|{maiu}{minu})*
+
+id_int:! i_{letra}({letra}|{dig})*
+
+id_float:! f_{letra}({letra}|{dig})*
+
+id_string:! s_{letra}({letra}|{dig})*
+
+id_bool:! b_{letra}({letra}|{dig})*
+
+c_int:! dig+
+
+c_float:! dig+,dig+
+
+c_string:! \"[^\n\"\\]*\"
+
+: [\n\s\t]
+
+:!{comentario_bloco}
+
+and = p_res: "and"
+false = p_res: "false"
+if = p_res: "if"
+in = p_res: "in"
+isfalsedo = p_res: "isFalseDo"
+istruedo = p_res: "isTrueDo"
+module = p_res: "module"
+not = p_res: "not"
+or = p_res: "or"
+out = p_res: "out"
+true = p_res: "true"
+while = p_res: "while"
+
+","
+":"
+";"
+"["
+"]"
+"("
+")"
+"{"
+"}"
+"+"
+"-"
+"*"
+"/"
+"<-"
+"="
+"<"
+">"
+"<>"
+
+#NonTerminals
+<def_module>
+
+<dec_vars>
+<lista_vars>
+<lista_vars_aux>
+<vetor_aux>
+<lista_cmd>
+<cmd>
+<exp_opcional>
+<cmd_atribuicao>
+<cmd_entrada>
+<cmd_saida>
+<cmd_selecao>
+<false_opcional>
+<true_opcional>
+<is_true>
+<is_false>
+<cmd_repeticao>
+<identificador>
+<expressao>
+<lista_identificadores>
+<lista_expressoes>
+
+
+#Grammar
+<def_module> ::= module <dec_vars> "{" <lista_cmd> "}" ;
+
+<identificador> ::= id_int | id_float | id_string | id_bool ;
+
+<dec_vars> ::= <lista_vars> ;
+
+<lista_vars> ::= î | <lista_vars_aux> ; 
+<lista_vars_aux> ::= <identificador> <vetor_aux> | <identificador> <vetor_aux> "," <lista_vars_aux> ;
+<vetor_aux> ::= "[" c_int "]" | î ;
+
+<cmd> ::= <cmd_atribuicao> | <cmd_entrada> | <cmd_saida> | <cmd_selecao> | <cmd_repeticao> ;
+<lista_cmd> ::= <cmd> | <cmd> <lista_cmd> ; 
+
+
+<exp_opcional> ::= "[" <expressao> "]" | î ;
+<cmd_atribuicao> ::= <identificador> <exp_opcional> "<-" <expressao> ;
+<cmd_entrada> ::= in "(" <lista_identificadores> ")" ;
+<cmd_saida> ::= out "(" <lista_expressoes> ")" ;
+<cmd_selecao> ::= if "(" <expressao> ")" <is_true> <false_opcional> |if "(" <expressao> ")" <is_false> <true_opcional> ;
+<is_true> ::= istruedo "{" <lista_cmd> "}" ;
+<is_false> ::= isfalsedo "{" <lista_cmd> "}" ;
+<false_opcional> ::= î | <is_false> ;
+<true_opcional> ::= î | <is_true> ;
+<cmd_repeticao> ::= while "(" <expressao> ")" <is_true> | while "(" <expressao> ")" <is_false> ;
+ 
+
+<lista_identificadores> ::= <identificador> <exp_opcional> | <identificador> <exp_opcional> "," <lista_identificadores> ;
+<lista_expressoes> ::= <expressao> | <expressao> "," <lista_expressoes> ; 
+
