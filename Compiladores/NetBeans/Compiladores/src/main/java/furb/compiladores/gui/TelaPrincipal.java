@@ -4,6 +4,10 @@ import furb.compiladores.io.ArquivoTexto;
 import furb.compiladores.lexico.Constants;
 import furb.compiladores.lexico.LexicalError;
 import furb.compiladores.lexico.Lexico;
+import furb.compiladores.lexico.SemanticError;
+import furb.compiladores.lexico.Semantico;
+import furb.compiladores.lexico.Sintatico;
+import furb.compiladores.lexico.SyntaticError;
 import furb.compiladores.lexico.Token;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -138,84 +142,42 @@ public class TelaPrincipal extends JFrame {
         areaMensagens.limpar();
         String codigo = editor.getTexto();
 
-        Lexico lexico = new Lexico();
-        lexico.setInput(codigo);
-
-        List<Token> tokens = new ArrayList<>();
         try {
-            Token token;
-            while ((token = lexico.nextToken()) != null) {
-                if (token.getId() == Constants.t_p_res) {
-                    // segue o padrao de palavra reservada, mas nao e uma delas
-                    mostrarErro(codigo, token.getPosition(),
-                            token.getLexeme() + " palavra reservada inválida");
-                    return;
-                }
-                tokens.add(token);
-            }
+            new Sintatico().parse(new Lexico(codigo), new Semantico());
         } catch (LexicalError e) {
-            mostrarErro(codigo, e.getPosition(), descreverErro(codigo, e));
+            mostrarErro(codigo, e.getPosition(), "erro léxico");
+            return;
+        } catch (SyntaticError e) {
+            mostrarErro(codigo, e.getPosition(),
+                    "encontrado " + encontradoEm(codigo, e.getPosition()) + " " + e.getMessage());
+            return;
+        } catch (SemanticError e) {
+            mostrarErro(codigo, e.getPosition(), e.getMessage());
             return;
         }
-        mostrarTokens(codigo, tokens);
-    }
-
-    private void mostrarTokens(String codigo, List<Token> tokens) {
-        StringBuilder saida = new StringBuilder();
-        if (!tokens.isEmpty()) {
-            saida.append(String.format(FORMATO_LINHA, "linha", "classe", "lexema"));
-            for (Token token : tokens) {
-                saida.append(String.format(FORMATO_LINHA,
-                        String.valueOf(linhaDe(codigo, token.getPosition())),
-                        classeDe(token.getId()),
-                        token.getLexeme()));
-            }
-            saida.append(String.format("%n%n"));
-            saida.append(RECUO_SUCESSO);
-        }
-        saida.append("programa compilado com sucesso");
-        areaMensagens.mostrar(saida.toString());
+        areaMensagens.mostrar("programa compilado com sucesso");
     }
 
     private void mostrarErro(String codigo, int posicao, String descricao) {
         areaMensagens.mostrar("linha " + linhaDe(codigo, posicao) + ": " + descricao);
     }
 
-    private static String descreverErro(String codigo, LexicalError erro) {
-        String mensagem = erro.getMessage();
-        int posicao = erro.getPosition();
-        if (mensagem.contains("id_")) {
-            return "identificador inválido";
+    /** O token que o analisador encontrou na posicao do erro. */
+    private static String encontradoEm(String codigo, int posicao) {
+        Lexico lexico = new Lexico(codigo);
+        try {
+            Token token;
+            while ((token = lexico.nextToken()) != null) {
+                if (token.getPosition() == posicao) {
+                    return token.getId() == Constants.t_c_string
+                            ? "constante_string"
+                            : token.getLexeme();
+                }
+            }
+        } catch (LexicalError naoChegaAqui) {
+            // a analise lexica ja passou antes de o erro sintatico ocorrer
         }
-        if (mensagem.contains("c_string")) {
-            return "constante_string inválida";
-        }
-        if (mensagem.contains("<ignorar>")) {
-            return "comentário inválido ou não finalizado";
-        }
-        if (mensagem.contains("p_res")) {
-            return palavraEm(codigo, posicao) + " palavra reservada inválida";
-        }
-        return simboloEm(codigo, posicao) + " símbolo inválido";
-    }
-
-    private static String classeDe(int id) {
-        if (id >= Constants.t_TOKEN_22) {
-            return "símbolo especial";
-        }
-        if (id == Constants.t_c_int) {
-            return "constante_int";
-        }
-        if (id == Constants.t_c_float) {
-            return "constante_float";
-        }
-        if (id == Constants.t_c_string) {
-            return "constante_string";
-        }
-        if (id >= Constants.t_id_int && id <= Constants.t_id_bool) {
-            return "identificador";
-        }
-        return "palavra reservada";
+        return "EOF";
     }
 
     private static int linhaDe(String codigo, int posicao) {
@@ -226,18 +188,6 @@ public class TelaPrincipal extends JFrame {
             }
         }
         return linha;
-    }
-
-    private static String palavraEm(String codigo, int posicao) {
-        int fim = posicao;
-        while (fim < codigo.length() && Character.isLetter(codigo.charAt(fim))) {
-            fim++;
-        }
-        return codigo.substring(posicao, fim);
-    }
-
-    private static String simboloEm(String codigo, int posicao) {
-        return posicao < codigo.length() ? String.valueOf(codigo.charAt(posicao)) : "";
     }
 
     private void equipe() {

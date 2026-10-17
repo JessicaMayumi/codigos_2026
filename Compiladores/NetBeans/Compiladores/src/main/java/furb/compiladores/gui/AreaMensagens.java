@@ -15,8 +15,7 @@ class AreaMensagens extends JScrollPane {
         area.setEditable(false);
 
         setViewportView(area);
-        setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_ALWAYS);
-        setHorizontalScrollBarPolicy(HORIZONTAL_SCROLLBAR_ALWAYS);
+        Rolagem.sempreVisivel(this);   // barras visíveis mesmo sem mensagens
     }
 
     // troca o conteúdo, para ficar visível só a mensagem do último botão acionado

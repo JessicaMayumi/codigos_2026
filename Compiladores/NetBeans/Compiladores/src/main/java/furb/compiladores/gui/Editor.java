@@ -14,9 +14,7 @@ class Editor extends JScrollPane {
         area.setBorder(new NumberedBorder());   // numeração das linhas
 
         setViewportView(area);
-        // as barras de rolagem ficam sempre visíveis, mesmo sem texto
-        setVerticalScrollBarPolicy(VERTICAL_SCROLLBAR_ALWAYS);
-        setHorizontalScrollBarPolicy(HORIZONTAL_SCROLLBAR_ALWAYS);
+        Rolagem.sempreVisivel(this);   // barras visíveis mesmo sem texto
     }
 
     String getTexto() {
