@@ -4,11 +4,16 @@ import furb.compiladores.io.ArquivoTexto;
 import furb.compiladores.lexico.Constants;
 import furb.compiladores.lexico.LexicalError;
 import furb.compiladores.lexico.Lexico;
+import furb.compiladores.lexico.SemanticError;
+import furb.compiladores.lexico.Semantico;
+import furb.compiladores.lexico.Sintatico;
+import furb.compiladores.lexico.SyntaticError;
 import furb.compiladores.lexico.Token;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.BorderFactory;
@@ -139,7 +144,7 @@ public class TelaPrincipal extends JFrame {
         String codigo = editor.getTexto();
 
         Lexico lexico = new Lexico();
-        lexico.setInput(codigo);
+        lexico.setInput(new StringReader(codigo));
 
         List<Token> tokens = new ArrayList<>();
         try {
@@ -157,7 +162,33 @@ public class TelaPrincipal extends JFrame {
             mostrarErro(codigo, e.getPosition(), descreverErro(codigo, e));
             return;
         }
+
+        Semantico semantico = new Semantico();
+        try {
+            Lexico lexicoSintatico = new Lexico();
+            lexicoSintatico.setInput(new StringReader(codigo));
+            new Sintatico().parse(lexicoSintatico, semantico);
+        } catch (LexicalError e) {
+            mostrarErro(codigo, e.getPosition(), descreverErro(codigo, e));
+            return;
+        } catch (SyntaticError e) {
+            mostrarErro(codigo, e.getPosition(),
+                    "encontrado " + lexemaEm(tokens, e.getPosition()) + ", erro sintático");
+            return;
+        } catch (SemanticError e) {
+            mostrarErro(codigo, e.getPosition(), e.getMessage());
+            return;
+        }
         mostrarTokens(codigo, tokens);
+    }
+
+    private static String lexemaEm(List<Token> tokens, int posicao) {
+        for (Token token : tokens) {
+            if (token.getPosition() == posicao) {
+                return token.getLexeme();
+            }
+        }
+        return "EOF"; // erro no fim do programa ($ gerado pelo sintatico)
     }
 
     private void mostrarTokens(String codigo, List<Token> tokens) {
