@@ -149,7 +149,7 @@ public class TelaPrincipal extends JFrame {
             return;
         } catch (SyntaticError e) {
             mostrarErro(codigo, e.getPosition(),
-                    "encontrado " + encontradoEm(codigo, e.getPosition()) + " " + e.getMessage());
+                    "encontrado " + encontradoEm(codigo, e.getPosition()) + ", erro sintático");
             return;
         } catch (SemanticError e) {
             mostrarErro(codigo, e.getPosition(), e.getMessage());
