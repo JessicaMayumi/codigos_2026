@@ -30,12 +30,6 @@ public class TelaPrincipal extends JFrame {
         "Ruan Gustavo Molinari"
     };
 
-    private static final String FORMATO_LINHA = "%-11s%-27s%s%n";
-    private static final String RECUO_SUCESSO = "           ";
-
-    private static final String MENSAGEM_COMPILACAO =
-        "compilação de programas ainda não foi implementada";
-
     private static final int LARGURA_JANELA = 1500;
     private static final int ALTURA_JANELA = 800;
     private static final int ALTURA_INICIAL_EDITOR = 590;

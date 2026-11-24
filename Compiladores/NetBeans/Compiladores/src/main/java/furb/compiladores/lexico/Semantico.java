@@ -14,6 +14,7 @@ public class Semantico implements Constants {
     private Stack<String> pilhaRotulos = new Stack<>();
     private String operadorRelacional = "";
     private String identificador = "";
+    private String desvio = "brfalse "; // isTrueDo sai do bloco quando a expressao e falsa
     private Map<String, Integer> tabelaSimbolos = new LinkedHashMap<>(); // identificador, tamanho
     private Set<String> identificadoresUsados = new HashSet<>();
     private int contadorRotulos = 0;
@@ -51,7 +52,7 @@ public class Semantico implements Constants {
                 acao109();
                 break;
             case 110:
-                acao110(token);
+                acao110();
                 break;
             case 111:
                 acao111();
@@ -63,7 +64,7 @@ public class Semantico implements Constants {
                 acao113();
                 break;
             case 114:
-                acao114(token);
+                acao114();
                 break;
             case 115:
                 acao115();
@@ -124,6 +125,9 @@ public class Semantico implements Constants {
                 break;
             case 134:
                 acao134();
+                break;
+            case 135:
+                acao135();
                 break;
             default:
                 throw new SemanticError(
@@ -216,11 +220,8 @@ public class Semantico implements Constants {
         );
     }
 
-    private void acao110(Token token) {
-        pilhaTipos.pop();
-        String rotulo = novoRotulo();
-        codigoObjeto.append(desvioPara(token) + rotulo + "\n");
-        pilhaRotulos.push(rotulo);
+    private void acao110() {
+        desviar();
     }
 
     private void acao111() {
@@ -240,11 +241,8 @@ public class Semantico implements Constants {
         pilhaRotulos.push(rotulo);
     }
 
-    private void acao114(Token token) {
-        pilhaTipos.pop();
-        String rotulo = novoRotulo();
-        codigoObjeto.append(desvioPara(token) + rotulo + "\n");
-        pilhaRotulos.push(rotulo);
+    private void acao114() {
+        desviar();
     }
 
     private void acao115() {
@@ -428,6 +426,11 @@ public class Semantico implements Constants {
         codigoObjeto.append("conv.i4\n");
     }
 
+    // acao extra: isFalseDo sai do bloco quando a expressao e verdadeira
+    private void acao135() {
+        desvio = "brtrue ";
+    }
+
     // guarda no identificador o valor que esta no topo da pilha
     private void armazenar() {
         if (ehArray(identificador)) {
@@ -486,14 +489,18 @@ public class Semantico implements Constants {
         return numero.replaceFirst("^0+(?=[0-9])", "");
     }
 
+    // desvia para um rotulo novo, que e resolvido nas acoes 111, 112 e 115
+    private void desviar() {
+        pilhaTipos.pop();
+        String rotulo = novoRotulo();
+        codigoObjeto.append(desvio + rotulo + "\n");
+        pilhaRotulos.push(rotulo);
+        desvio = "brfalse ";
+    }
+
     private String novoRotulo() {
         contadorRotulos++;
         return "rotulo" + contadorRotulos;
-    }
-
-    // isTrueDo sai do bloco quando a expressao e falsa, isFalseDo quando e verdadeira
-    private String desvioPara(Token token) {
-        return token.getId() == t_istruedo ? "brfalse " : "brtrue ";
     }
 
     public String getCodigoObjeto() {

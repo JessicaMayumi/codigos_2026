@@ -146,16 +146,16 @@ while = p_res: "while"
 
 //regras sem não determinismo
 <cmd_selecao> ::= if "(" <expressao> ")" <cmd_selecao_2> ;
-<cmd_selecao_2> ::= <is_true> <false_opcional> #111 | <is_false> <true_opcional> #111 ;
-<is_true> ::= istruedo #110 "{" <lista_cmd> "}" ;
-<is_false> ::= isfalsedo #110 "{" <lista_cmd> "}" ;
-<false_opcional> ::= î | isfalsedo #112 "{" <lista_cmd> "}" ;
-<true_opcional> ::= î | istruedo #112 "{" <lista_cmd> "}" ;
+<cmd_selecao_2> ::= #110 <is_true> <false_opcional> #111 | #135 #110 <is_false> <true_opcional> #111 ;
+<is_true> ::= istruedo "{" <lista_cmd> "}" ;
+<is_false> ::= isfalsedo "{" <lista_cmd> "}" ;
+<false_opcional> ::= î | #112 <is_false> ;
+<true_opcional> ::= î | #112 <is_true> ;
 
 //regras com não determinismo
 // <cmd_repeticao> ::= while "(" <expressao> ")" <is_true> | while "(" <expressao> ")" <is_false> ;
 <cmd_repeticao> ::= #113 while "(" <expressao> ")" <cmd_repeticao_2> ;
-<cmd_repeticao_2> ::= istruedo #114 "{" <lista_cmd> "}" #115 | isfalsedo #114 "{" <lista_cmd> "}" #115 ;
+<cmd_repeticao_2> ::= #114 <is_true> #115 | #135 #114 <is_false> #115 ;
  
 // regras com não determinismo
 // <lista_identificadores> ::= <identificador> <exp_opcional> | <identificador> <exp_opcional> "," <lista_identificadores> ;
