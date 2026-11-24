@@ -17,6 +17,7 @@ public class Semantico implements Constants {
     private Map<String, Integer> tabelaSimbolos = new LinkedHashMap<>(); // identificador, tamanho
     private Set<String> identificadoresUsados = new HashSet<>();
     private int contadorRotulos = 0;
+    private int maiorPilha = 0;
 
     public void executeAction(int action, Token token) throws SemanticError {
         System.out.println("Acao #" + action + ", Token: " + token);
@@ -129,6 +130,7 @@ public class Semantico implements Constants {
                     "Acao semantica nao implementada: " + action
                 );
         }
+        maiorPilha = Math.max(maiorPilha, pilhaTipos.size());
     }
 
     private void acao101() {
@@ -149,6 +151,11 @@ public class Semantico implements Constants {
                     token.getPosition()
                 );
             }
+        }
+        // alem da expressao ficam na pilha o array, o indice e uma constante (acoes 107, 120, 132, 134)
+        int tamanhoPilha = maiorPilha + 3;
+        if (tamanhoPilha > 8) { // 8 e o padrao da IL
+            codigoObjeto.append(".maxstack " + tamanhoPilha + "\n");
         }
         codigoObjeto.append("ret\n");
         codigoObjeto.append("}\n");
