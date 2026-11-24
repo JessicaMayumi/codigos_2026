@@ -142,8 +142,9 @@ public class TelaPrincipal extends JFrame {
         areaMensagens.limpar();
         String codigo = editor.getTexto();
 
+        Semantico semantico = new Semantico();
         try {
-            new Sintatico().parse(new Lexico(codigo), new Semantico());
+            new Sintatico().parse(new Lexico(codigo), semantico);
         } catch (LexicalError e) {
             mostrarErro(codigo, e.getPosition(), "erro léxico");
             return;
@@ -155,7 +156,28 @@ public class TelaPrincipal extends JFrame {
             mostrarErro(codigo, e.getPosition(), e.getMessage());
             return;
         }
+        if (arquivoAtual == null) {
+            avisarErro("Salve o arquivo antes de compilar.");
+            return;
+        }
+        File destino = arquivoIl(arquivoAtual);
+        try {
+            ArquivoTexto.gravar(destino, semantico.getCodigoObjeto());
+        } catch (IOException e) {
+            avisarErro("Não foi possível gravar o arquivo:\n" + destino.getAbsolutePath());
+            return;
+        }
         areaMensagens.mostrar("programa compilado com sucesso");
+    }
+
+    // mesma pasta e mesmo nome do programa fonte, com extensao .il
+    private static File arquivoIl(File fonte) {
+        String nome = fonte.getName();
+        int ponto = nome.lastIndexOf('.');
+        if (ponto > 0) {
+            nome = nome.substring(0, ponto);
+        }
+        return new File(fonte.getAbsoluteFile().getParentFile(), nome + ".il");
     }
 
     private void mostrarErro(String codigo, int posicao, String descricao) {
