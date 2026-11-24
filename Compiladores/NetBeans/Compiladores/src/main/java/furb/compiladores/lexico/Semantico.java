@@ -167,10 +167,11 @@ public class Semantico implements Constants {
     }
 
     private void acao105(Token token) {
-        tabelaSimbolos.put(identificador, Integer.parseInt(token.getLexeme()));
+        String tamanho = semZerosAEsquerda(token.getLexeme());
+        tabelaSimbolos.put(identificador, Integer.parseInt(tamanho));
         String tipo = tipoDe(identificador);
         codigoObjeto.append(".locals(" + tipo + "[] " + identificador + ")\n");
-        codigoObjeto.append("ldc.i4 " + token.getLexeme() + "\n");
+        codigoObjeto.append("ldc.i4 " + tamanho + "\n");
         codigoObjeto.append("newarr [mscorlib]System." + classeDe(tipo) + "\n");
         codigoObjeto.append("stloc " + identificador + "\n");
     }
@@ -369,13 +370,14 @@ public class Semantico implements Constants {
 
     private void acao128(Token token) {
         pilhaTipos.push("int64");
-        codigoObjeto.append("ldc.i8 " + token.getLexeme() + "\n");
+        codigoObjeto.append("ldc.i8 " + semZerosAEsquerda(token.getLexeme()) + "\n");
         codigoObjeto.append("conv.r8\n");
     }
 
     private void acao129(Token token) {
         pilhaTipos.push("float64");
-        codigoObjeto.append("ldc.r8 " + token.getLexeme().replace(",", ".") + "\n");
+        String valor = semZerosAEsquerda(token.getLexeme()).replace(",", ".");
+        codigoObjeto.append("ldc.r8 " + valor + "\n");
     }
 
     private void acao130(Token token) {
@@ -470,6 +472,11 @@ public class Semantico implements Constants {
             default:
                 return "i1";
         }
+    }
+
+    // o ilasm do Windows le numero com zero a esquerda como octal
+    private String semZerosAEsquerda(String numero) {
+        return numero.replaceFirst("^0+(?=[0-9])", "");
     }
 
     private String novoRotulo() {

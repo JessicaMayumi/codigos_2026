@@ -162,7 +162,8 @@ public class TelaPrincipal extends JFrame {
         }
         File destino = arquivoIl(arquivoAtual);
         try {
-            ArquivoTexto.gravar(destino, semantico.getCodigoObjeto());
+            // sem a marca UTF-8 no inicio o ilasm do Windows le o arquivo como ANSI e troca os acentos
+            ArquivoTexto.gravar(destino, "\uFEFF" + semantico.getCodigoObjeto());
         } catch (IOException e) {
             avisarErro("Não foi possível gravar o arquivo:\n" + destino.getAbsolutePath());
             return;
